@@ -318,11 +318,15 @@ public class LanternTickHandler {
     }
 
     /**
-     * Topmost block in the column a mob could stand on (solid up-face, open
-     * above) - regardless of whether the Lantern may replace it.
+     * Block in the column a mob could stand on (solid up-face, open above)
+     * NEAREST the reference level - regardless of whether the Lantern may
+     * replace it. Nearest, not topmost, so floors above the player don't
+     * shadow the level the player is actually on.
      */
     public static BlockPos findStandableSurface(World world, int x, int z, int centerY, int vr) {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        BlockPos best = null;
+        int bestDistance = Integer.MAX_VALUE;
         boolean openAbove = false;
         for (int y = centerY + vr + 1; y >= centerY - vr; y--) {
             pos.setPos(x, y, z);
@@ -335,11 +339,15 @@ public class LanternTickHandler {
                 continue;
             }
             if (openAbove && y <= centerY + vr && state.isSideSolid(world, pos, EnumFacing.UP)) {
-                return new BlockPos(x, y, z);
+                int distance = Math.abs(y + 1 - centerY);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = new BlockPos(x, y, z);
+                }
             }
             openAbove = false;
         }
-        return null;
+        return best;
     }
 
     /** Grid pass: floors only - walls are handled by the anchored gap-fill rescue. */
@@ -395,12 +403,15 @@ public class LanternTickHandler {
     }
 
     /**
-     * Topmost replaceable floor block in the column: valid ground (or an
-     * existing lamp, so lit columns skip cleanly) with open or transparent
-     * space directly above.
+     * Replaceable floor block in the column NEAREST the player's level -
+     * valid ground (or an existing lamp, so lit columns skip cleanly) with
+     * open or transparent space directly above. Nearest, not topmost, so a
+     * floor or overhang above the player doesn't hijack the placement.
      */
     private BlockPos findFloor(World world, int x, int z, int centerY, int vr) {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        BlockPos best = null;
+        int bestDistance = Integer.MAX_VALUE;
         for (int y = centerY + vr; y >= centerY - vr; y--) {
             pos.setPos(x, y, z);
             if (!world.isBlockLoaded(pos)) {
@@ -413,10 +424,14 @@ public class LanternTickHandler {
             BlockPos up = pos.up();
             IBlockState upState = world.getBlockState(up);
             if (isOpen(upState, world, up)) {
-                return new BlockPos(x, y, z);
+                int distance = Math.abs(y + 1 - centerY);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = new BlockPos(x, y, z);
+                }
             }
         }
-        return null;
+        return best;
     }
 
     public static boolean isLamp(Block block) {
