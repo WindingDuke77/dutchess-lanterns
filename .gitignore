@@ -1,0 +1,24 @@
+# build output
+build/
+out/
+bin/
+
+# gradle
+.gradle/
+
+# run environment
+run/
+
+# local toolchain (portable JDK, downloaded archives)
+tools/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+eclipse/
+.classpath
+.project
+.settings/
+.vscode/
