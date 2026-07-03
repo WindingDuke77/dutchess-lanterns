@@ -19,7 +19,9 @@ compileJava {
 }
 
 minecraft {
-    version = '1.12.2-14.23.5.2860'
+    // 2847 is the newest 1.12.2 build published with the FG2.3-style userdev
+    // artifact; the resulting jar runs fine on the pack's 14.23.5.2860 runtime.
+    version = '1.12.2-14.23.5.2847'
     runDir = 'run'
     mappings = 'stable_39'
 }
