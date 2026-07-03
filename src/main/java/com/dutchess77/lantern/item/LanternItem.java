@@ -151,6 +151,7 @@ public class LanternItem extends Item {
         tooltip.add((active ? TextFormatting.GREEN : TextFormatting.DARK_GRAY)
             + I18n.format(active ? "tooltip.lantern.active" : "tooltip.lantern.inactive"));
         tooltip.add(describeFuel(stack));
+        tooltip.add(TextFormatting.GRAY + describeCost());
         tooltip.add("");
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto1"));
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format(howtoFillKey()));
@@ -160,6 +161,11 @@ public class LanternItem extends Item {
     protected String describeFuel(ItemStack stack) {
         return TextFormatting.YELLOW
             + I18n.format("tooltip.lantern.charge", getCharge(stack), LanternConfig.bufferCapacity);
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected String describeCost() {
+        return I18n.format("tooltip.lantern.cost");
     }
 
     protected String howtoFillKey() {

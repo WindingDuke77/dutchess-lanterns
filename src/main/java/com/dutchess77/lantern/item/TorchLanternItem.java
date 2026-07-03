@@ -44,6 +44,12 @@ public class TorchLanternItem extends LanternItem {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    protected String describeCost() {
+        return I18n.format("tooltip.lantern.cost_torch");
+    }
+
+    @Override
     protected String howtoFillKey() {
         return "tooltip.lantern.howto2_torch";
     }

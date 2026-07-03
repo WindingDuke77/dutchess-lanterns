@@ -92,6 +92,12 @@ public class EnergyLanternItem extends LanternItem {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    protected String describeCost() {
+        return I18n.format("tooltip.lantern.cost_energy", formatFE(LanternConfig.energyPerLight));
+    }
+
+    @Override
     protected String howtoFillKey() {
         return "tooltip.lantern.howto2_energy";
     }
