@@ -33,6 +33,9 @@ public class LanternConfig {
     @Config.RangeInt(min = 1, max = 100)
     public static int tickInterval = 5;
 
+    @Config.Comment("After the grid pass, also light dark spots the grid missed (walls, unplaceable ground)")
+    public static boolean fillGaps = true;
+
     @Config.Comment("How long (in seconds) placed lights sparkle")
     @Config.RangeInt(min = 0, max = 60)
     public static int sparkleSeconds = 6;

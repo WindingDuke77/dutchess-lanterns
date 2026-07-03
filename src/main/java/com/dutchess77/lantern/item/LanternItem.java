@@ -30,10 +30,6 @@ public class LanternItem extends Item {
 
     private static final String TAG_ACTIVE = "Active";
     private static final String TAG_CHARGE = "Charge";
-    private static final String TAG_SPACING = "Spacing";
-
-    public static final int MIN_SPACING = 5;
-    public static final int MAX_SPACING = 7;
 
     public LanternItem() {
         this("lantern");
@@ -149,12 +145,9 @@ public class LanternItem extends Item {
         tooltip.add((active ? TextFormatting.GREEN : TextFormatting.DARK_GRAY)
             + I18n.format(active ? "tooltip.lantern.active" : "tooltip.lantern.inactive"));
         tooltip.add(describeFuel(stack));
-        tooltip.add(TextFormatting.AQUA
-            + I18n.format("tooltip.lantern.spacing", getSpacing(stack), getSpacing(stack)));
         tooltip.add("");
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto1"));
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format(howtoFillKey()));
-        tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto3"));
     }
 
     @SideOnly(Side.CLIENT)
@@ -185,25 +178,6 @@ public class LanternItem extends Item {
 
     public static void setCharge(ItemStack stack, int charge) {
         getOrCreateTag(stack).setInteger(TAG_CHARGE, Math.max(0, charge));
-    }
-
-    /** Item-level grid spacing; falls back to the config default when never scrolled. */
-    public static int getSpacing(ItemStack stack) {
-        if (stack.hasTagCompound() && stack.getTagCompound().hasKey(TAG_SPACING)) {
-            return clampSpacing(stack.getTagCompound().getInteger(TAG_SPACING));
-        }
-        return LanternConfig.gridSpacing;
-    }
-
-    /** Shifts spacing by dir (+1/-1) within [MIN_SPACING, MAX_SPACING]; returns the new value. */
-    public static int adjustSpacing(ItemStack stack, int dir) {
-        int next = clampSpacing(clampSpacing(getSpacing(stack)) + Integer.signum(dir));
-        getOrCreateTag(stack).setInteger(TAG_SPACING, next);
-        return next;
-    }
-
-    private static int clampSpacing(int spacing) {
-        return Math.min(MAX_SPACING, Math.max(MIN_SPACING, spacing));
     }
 
     protected static NBTTagCompound getOrCreateTag(ItemStack stack) {

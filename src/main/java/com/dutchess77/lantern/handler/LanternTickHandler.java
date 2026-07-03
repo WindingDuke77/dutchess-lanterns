@@ -128,7 +128,9 @@ public class LanternTickHandler {
         int vr = LanternConfig.verticalRange;
 
         sweepTorches(world, player, center, r, vr);
-        placeLights(world, player, lantern, center, r, vr);
+        if (placeLights(world, player, lantern, center, r, vr) && LanternConfig.fillGaps) {
+            fillGaps(world, player, lantern, center, r, vr);
+        }
     }
 
     private static ItemStack findActiveLantern(EntityPlayer player) {
@@ -186,8 +188,9 @@ public class LanternTickHandler {
 
     // ------------------------------------------------------------ grid lights
 
-    private void placeLights(World world, EntityPlayer player, ItemStack lantern, BlockPos center, int r, int vr) {
-        int spacing = Math.max(2, LanternItem.getSpacing(lantern));
+    /** Returns false when it ran out of fuel (skip the gap-fill pass). */
+    private boolean placeLights(World world, EntityPlayer player, ItemStack lantern, BlockPos center, int r, int vr) {
+        int spacing = Math.max(2, LanternConfig.gridSpacing);
         int minX = center.getX() - r;
         int minZ = center.getZ() - r;
         // first world-grid coordinate >= min (floorMod keeps the grid global in -X/-Z)
@@ -196,13 +199,63 @@ public class LanternTickHandler {
 
         for (int gx = startX; gx <= center.getX() + r; gx += spacing) {
             for (int gz = startZ; gz <= center.getZ() + r; gz += spacing) {
-                PlaceResult result = tryPlaceAtGridPoint(world, player, lantern, gx, gz, center.getY(), vr);
+                PlaceResult result = tryPlaceAtGridPoint(world, player, lantern, gx, gz, center.getY(), vr, false);
+                if (result == PlaceResult.NO_FUEL) {
+                    warnNoFuel(world, player);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Sweeps every column for spots a mob could stand on that the grid left
+     * dark (walls, unplaceable ground, terrain shadows) and lights them - at
+     * the column itself or a +-1 neighbor. Freshly placed lights raise the
+     * light level of the surrounding columns, so the pass self-limits.
+     */
+    private void fillGaps(World world, EntityPlayer player, ItemStack lantern, BlockPos center, int r, int vr) {
+        for (int x = center.getX() - r; x <= center.getX() + r; x++) {
+            for (int z = center.getZ() - r; z <= center.getZ() + r; z++) {
+                BlockPos standable = findStandableSurface(world, x, z, center.getY(), vr);
+                if (standable == null
+                    || world.getLightFor(EnumSkyBlock.BLOCK, standable.up()) > LanternConfig.lightThreshold) {
+                    continue;
+                }
+                // verified-dark spot: place here or next door, ignoring the spot's own light
+                PlaceResult result = tryPlaceAtGridPoint(world, player, lantern, x, z, center.getY(), vr, true);
                 if (result == PlaceResult.NO_FUEL) {
                     warnNoFuel(world, player);
                     return;
                 }
             }
         }
+    }
+
+    /**
+     * Topmost block in the column a mob could stand on (solid up-face, open
+     * above) - regardless of whether the Lantern may replace it.
+     */
+    private BlockPos findStandableSurface(World world, int x, int z, int centerY, int vr) {
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        boolean openAbove = false;
+        for (int y = centerY + vr + 1; y >= centerY - vr; y--) {
+            pos.setPos(x, y, z);
+            if (!world.isBlockLoaded(pos)) {
+                return null;
+            }
+            IBlockState state = world.getBlockState(pos);
+            if (isOpen(state, world, pos)) {
+                openAbove = true;
+                continue;
+            }
+            if (openAbove && y <= centerY + vr && state.isSideSolid(world, pos, EnumFacing.UP)) {
+                return new BlockPos(x, y, z);
+            }
+            openAbove = false;
+        }
+        return null;
     }
 
     /** A solid block the light can be embedded in, plus the open face it shines from. */
@@ -217,7 +270,7 @@ public class LanternTickHandler {
     }
 
     private PlaceResult tryPlaceAtGridPoint(World world, EntityPlayer player, ItemStack lantern,
-                                            int gx, int gz, int centerY, int vr) {
+                                            int gx, int gz, int centerY, int vr, boolean ignoreLight) {
         Spot spot = findSpot(world, gx, gz, centerY, vr);
         if (spot == null) {
             // exact grid column obstructed: shift by one, first valid column wins
@@ -231,16 +284,19 @@ public class LanternTickHandler {
         if (spot == null) {
             return PlaceResult.SKIP;
         }
-        return placeIfDark(world, player, lantern, spot);
+        return placeIfDark(world, player, lantern, spot, ignoreLight);
     }
 
-    private PlaceResult placeIfDark(World world, EntityPlayer player, ItemStack lantern, Spot spot) {
+    private PlaceResult placeIfDark(World world, EntityPlayer player, ItemStack lantern, Spot spot,
+                                    boolean ignoreLight) {
         IBlockState original = world.getBlockState(spot.target);
         if (EnderIOPaintHelper.isPaintedGlowstone(original.getBlock())) {
             return PlaceResult.SKIP;
         }
-        // block light only: daylight must not mask ground that goes dark at night
-        if (world.getLightFor(EnumSkyBlock.BLOCK, spot.open) > LanternConfig.lightThreshold) {
+        // block light only: daylight must not mask ground that goes dark at night.
+        // ignoreLight = the caller already verified a nearby spot is dark.
+        if (!ignoreLight
+            && world.getLightFor(EnumSkyBlock.BLOCK, spot.open) > LanternConfig.lightThreshold) {
             return PlaceResult.SKIP;
         }
         if (!((LanternItem) lantern.getItem()).consumePlacementCost(player, lantern)) {
