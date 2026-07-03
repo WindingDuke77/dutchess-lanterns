@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " I ",
+    "ITI",
+    " G "
+  ],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "T": { "item": "minecraft:torch" },
+    "G": { "item": "minecraft:glowstone" }
+  },
+  "result": { "item": "lantern:lantern" }
+}
