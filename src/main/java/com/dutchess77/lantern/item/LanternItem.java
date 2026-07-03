@@ -62,17 +62,26 @@ public class LanternItem extends Item {
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
 
-    /** Plain right-click. The base lantern loads Glowstone blocks from the inventory. */
+    /** The inventory item this lantern burns (Glowstone blocks by default). */
+    protected Item fuelItem() {
+        return Item.getItemFromBlock(Blocks.GLOWSTONE);
+    }
+
+    protected String chargeChatKey() {
+        return "chat.lantern.charge";
+    }
+
+    /** Plain right-click loads fuel items from the inventory into the buffer. */
     protected void fill(EntityPlayer player, ItemStack stack) {
         int capacity = LanternConfig.bufferCapacity;
         int charge = Math.min(getCharge(stack), capacity);
         int moved = 0;
-        Item glowstone = Item.getItemFromBlock(Blocks.GLOWSTONE);
+        Item fuel = fuelItem();
         for (ItemStack slot : player.inventory.mainInventory) {
             if (charge >= capacity) {
                 break;
             }
-            if (!slot.isEmpty() && slot.getItem() == glowstone && !slot.hasTagCompound()) {
+            if (!slot.isEmpty() && slot.getItem() == fuel && !slot.hasTagCompound()) {
                 int take = Math.min(slot.getCount(), capacity - charge);
                 slot.shrink(take);
                 charge += take;
@@ -80,7 +89,7 @@ public class LanternItem extends Item {
             }
         }
         setCharge(stack, charge);
-        player.sendStatusMessage(new TextComponentTranslation("chat.lantern.charge",
+        player.sendStatusMessage(new TextComponentTranslation(chargeChatKey(),
             charge, capacity), true);
         if (moved > 0) {
             player.world.playSound(null, player.posX, player.posY, player.posZ,
@@ -88,10 +97,7 @@ public class LanternItem extends Item {
         }
     }
 
-    /**
-     * Pays for one placed light. The base lantern spends its Glowstone buffer,
-     * then raw Glowstone blocks from the inventory.
-     */
+    /** Pays for one placed light: buffer first, then raw fuel items from the inventory. */
     public boolean consumePlacementCost(EntityPlayer player, ItemStack stack) {
         if (player.capabilities.isCreativeMode) {
             return true;
@@ -101,9 +107,9 @@ public class LanternItem extends Item {
             setCharge(stack, charge - 1);
             return true;
         }
-        Item glowstone = Item.getItemFromBlock(Blocks.GLOWSTONE);
+        Item fuel = fuelItem();
         for (ItemStack slot : player.inventory.mainInventory) {
-            if (!slot.isEmpty() && slot.getItem() == glowstone && !slot.hasTagCompound()) {
+            if (!slot.isEmpty() && slot.getItem() == fuel && !slot.hasTagCompound()) {
                 slot.shrink(1);
                 return true;
             }

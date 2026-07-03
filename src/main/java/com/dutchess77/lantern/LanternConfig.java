@@ -21,9 +21,9 @@ public class LanternConfig {
     @Config.RangeInt(min = 0, max = 14)
     public static int lightThreshold = 7;
 
-    @Config.Comment("Horizontal radius of the area processed around the player (8 = 16x16)")
-    @Config.RangeInt(min = 1, max = 16)
-    public static int horizontalRadius = 8;
+    @Config.Comment("Horizontal radius of the area processed around the player (16 = 32x32)")
+    @Config.RangeInt(min = 1, max = 32)
+    public static int horizontalRadius = 16;
 
     @Config.Comment("Vertical range scanned above/below the player for torches and ground")
     @Config.RangeInt(min = 1, max = 16)

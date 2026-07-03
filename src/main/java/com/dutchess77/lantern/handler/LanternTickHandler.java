@@ -13,6 +13,7 @@ import java.util.WeakHashMap;
 import com.dutchess77.lantern.LanternConfig;
 import com.dutchess77.lantern.compat.EnderIOPaintHelper;
 import com.dutchess77.lantern.item.LanternItem;
+import com.dutchess77.lantern.item.TorchLanternItem;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -55,6 +56,7 @@ public class LanternTickHandler {
         GROUND_MATERIALS.add(Material.SAND);
         GROUND_MATERIALS.add(Material.CLAY);
         GROUND_MATERIALS.add(Material.CRAFTED_SNOW);
+        GROUND_MATERIALS.add(Material.WOOD);
     }
 
     private static final Map<IBlockState, Boolean> ORE_CACHE = new IdentityHashMap<>();
@@ -116,6 +118,20 @@ public class LanternTickHandler {
         if (lantern.isEmpty()) {
             return;
         }
+
+        BlockPos center = new BlockPos(player);
+        int r = LanternConfig.horizontalRadius;
+        int vr = LanternConfig.verticalRange;
+
+        if (lantern.getItem() instanceof TorchLanternItem) {
+            // torch mode: no sweep, no EnderIO needed
+            if (placeGrid(world, player, lantern, center, r, vr, true)
+                && LanternConfig.fillGaps) {
+                fillGapsPass(world, player, lantern, center, r, vr, true);
+            }
+            return;
+        }
+
         if (!EnderIOPaintHelper.isAvailable()) {
             if (warnedNoEnderIO.add(player.getUniqueID())) {
                 player.sendMessage(new TextComponentTranslation("chat.lantern.no_enderio"));
@@ -123,13 +139,9 @@ public class LanternTickHandler {
             return;
         }
 
-        BlockPos center = new BlockPos(player);
-        int r = LanternConfig.horizontalRadius;
-        int vr = LanternConfig.verticalRange;
-
         sweepTorches(world, player, center, r, vr);
-        if (placeLights(world, player, lantern, center, r, vr) && LanternConfig.fillGaps) {
-            fillGaps(world, player, lantern, center, r, vr);
+        if (placeGrid(world, player, lantern, center, r, vr, false) && LanternConfig.fillGaps) {
+            fillGapsPass(world, player, lantern, center, r, vr, false);
         }
     }
 
@@ -189,7 +201,8 @@ public class LanternTickHandler {
     // ------------------------------------------------------------ grid lights
 
     /** Returns false when it ran out of fuel (skip the gap-fill pass). */
-    private boolean placeLights(World world, EntityPlayer player, ItemStack lantern, BlockPos center, int r, int vr) {
+    private boolean placeGrid(World world, EntityPlayer player, ItemStack lantern, BlockPos center,
+                              int r, int vr, boolean torchMode) {
         int spacing = Math.max(2, LanternConfig.gridSpacing);
         int minX = center.getX() - r;
         int minZ = center.getZ() - r;
@@ -199,7 +212,9 @@ public class LanternTickHandler {
 
         for (int gx = startX; gx <= center.getX() + r; gx += spacing) {
             for (int gz = startZ; gz <= center.getZ() + r; gz += spacing) {
-                PlaceResult result = tryPlaceAtGridPoint(world, player, lantern, gx, gz, center.getY(), vr, false);
+                PlaceResult result = torchMode
+                    ? tryPlaceTorch(world, player, lantern, gx, gz, center.getY(), vr, false)
+                    : tryPlaceAtGridPoint(world, player, lantern, gx, gz, center.getY(), vr, false);
                 if (result == PlaceResult.NO_FUEL) {
                     warnNoFuel(world, player);
                     return false;
@@ -215,7 +230,8 @@ public class LanternTickHandler {
      * the column itself or a +-1 neighbor. Freshly placed lights raise the
      * light level of the surrounding columns, so the pass self-limits.
      */
-    private void fillGaps(World world, EntityPlayer player, ItemStack lantern, BlockPos center, int r, int vr) {
+    private void fillGapsPass(World world, EntityPlayer player, ItemStack lantern, BlockPos center,
+                              int r, int vr, boolean torchMode) {
         for (int x = center.getX() - r; x <= center.getX() + r; x++) {
             for (int z = center.getZ() - r; z <= center.getZ() + r; z++) {
                 BlockPos standable = findStandableSurface(world, x, z, center.getY(), vr);
@@ -224,13 +240,52 @@ public class LanternTickHandler {
                     continue;
                 }
                 // verified-dark spot: place here or next door, ignoring the spot's own light
-                PlaceResult result = tryPlaceAtGridPoint(world, player, lantern, x, z, center.getY(), vr, true);
+                PlaceResult result = torchMode
+                    ? tryPlaceTorch(world, player, lantern, x, z, center.getY(), vr, true)
+                    : tryPlaceAtGridPoint(world, player, lantern, x, z, center.getY(), vr, true);
                 if (result == PlaceResult.NO_FUEL) {
                     warnNoFuel(world, player);
                     return;
                 }
             }
         }
+    }
+
+    /** Torch mode: stand a vanilla torch on the surface instead of replacing it. */
+    private PlaceResult tryPlaceTorch(World world, EntityPlayer player, ItemStack lantern,
+                                      int x, int z, int centerY, int vr, boolean ignoreLight) {
+        BlockPos spot = null;
+        for (int i = -1; i < NEIGHBOR_OFFSETS.length && spot == null; i++) {
+            int cx = i < 0 ? x : x + NEIGHBOR_OFFSETS[i][0];
+            int cz = i < 0 ? z : z + NEIGHBOR_OFFSETS[i][1];
+            BlockPos ground = findStandableSurface(world, cx, cz, centerY, vr);
+            if (ground == null) {
+                continue;
+            }
+            BlockPos above = ground.up();
+            IBlockState aboveState = world.getBlockState(above);
+            boolean replaceable = aboveState.getBlock().isAir(aboveState, world, above)
+                || (aboveState.getBlock().isReplaceable(world, above) && !aboveState.getMaterial().isLiquid());
+            if (replaceable && Blocks.TORCH.canPlaceBlockAt(world, above)) {
+                spot = above;
+            }
+        }
+        if (spot == null) {
+            return PlaceResult.SKIP;
+        }
+        if (!ignoreLight
+            && world.getLightFor(EnumSkyBlock.BLOCK, spot) > LanternConfig.lightThreshold) {
+            return PlaceResult.SKIP;
+        }
+        if (!((LanternItem) lantern.getItem()).consumePlacementCost(player, lantern)) {
+            return PlaceResult.NO_FUEL;
+        }
+        world.setBlockState(spot, Blocks.TORCH.getDefaultState(), 3);
+        if (world instanceof WorldServer && LanternConfig.sparkleSeconds > 0) {
+            sparkles.add(new Sparkle((WorldServer) world, spot,
+                world.getTotalWorldTime() + LanternConfig.sparkleSeconds * 20L));
+        }
+        return PlaceResult.PLACED;
     }
 
     /**

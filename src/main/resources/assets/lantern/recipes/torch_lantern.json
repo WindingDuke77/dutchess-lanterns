@@ -1,0 +1,17 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    " I ",
+    "ITI",
+    " C "
+  ],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "T": { "item": "minecraft:torch" },
+    "C": { "item": "minecraft:coal_block" }
+  },
+  "result": {
+    "item": "lantern:torch_lantern",
+    "nbt": { "Charge": 0 }
+  }
+}
