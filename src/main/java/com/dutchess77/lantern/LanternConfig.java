@@ -14,8 +14,8 @@ public class LanternConfig {
     public static int gridSpacing = 6;
 
     @Config.Comment("How many Glowstone blocks the Lantern's internal buffer can hold")
-    @Config.RangeInt(min = 1, max = 1024)
-    public static int bufferCapacity = 64;
+    @Config.RangeInt(min = 1, max = 4096)
+    public static int bufferCapacity = 512;
 
     @Config.Comment("Only place lights where block light is at or below this level (7 = mob spawn threshold)")
     @Config.RangeInt(min = 0, max = 14)

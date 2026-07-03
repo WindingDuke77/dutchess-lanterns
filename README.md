@@ -6,7 +6,7 @@ The Lantern sweeps up torches and buries invisible lighting in the ground as you
 
 - **Sneak + Right-Click** — toggle the Lantern on/off (it glints while active).
 - **Right-Click** — load Glowstone blocks from your inventory into its internal buffer
-  (shown as the yellow durability bar).
+  (shown as the yellow durability bar, holds 512 by default).
 - While active (held or anywhere on your hotbar) it continuously processes the area
   around you:
   - Removes torches and returns them to your inventory.
