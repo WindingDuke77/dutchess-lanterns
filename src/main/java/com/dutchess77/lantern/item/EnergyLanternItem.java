@@ -34,7 +34,29 @@ public class EnergyLanternItem extends LanternItem {
     protected void fill(EntityPlayer player, ItemStack stack) {
         // no inventory fuel; just report the charge level
         player.sendStatusMessage(new TextComponentTranslation("chat.lantern.energy",
-            getEnergy(stack), LanternConfig.energyCapacity), true);
+            formatFE(getEnergy(stack)), formatFE(LanternConfig.energyCapacity)), true);
+    }
+
+    /** 1234 -> "1.23k", 200000 -> "200k", 1500000 -> "1.5M"; at most two decimals. */
+    public static String formatFE(int fe) {
+        if (fe >= 1_000_000) {
+            return trimDecimals(fe / 1_000_000.0D) + "M";
+        }
+        if (fe >= 1_000) {
+            return trimDecimals(fe / 1_000.0D) + "k";
+        }
+        return Integer.toString(fe);
+    }
+
+    private static String trimDecimals(double value) {
+        String s = String.format(java.util.Locale.ROOT, "%.2f", value);
+        while (s.endsWith("0")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        if (s.endsWith(".")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        return s;
     }
 
     @Override
@@ -66,7 +88,7 @@ public class EnergyLanternItem extends LanternItem {
     @SideOnly(Side.CLIENT)
     protected String describeFuel(ItemStack stack) {
         return TextFormatting.RED
-            + I18n.format("tooltip.lantern.energy", getEnergy(stack), LanternConfig.energyCapacity);
+            + I18n.format("tooltip.lantern.energy", formatFE(getEnergy(stack)), formatFE(LanternConfig.energyCapacity));
     }
 
     @Override
