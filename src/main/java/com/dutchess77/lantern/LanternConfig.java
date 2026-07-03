@@ -1,0 +1,51 @@
+package com.dutchess77.lantern;
+
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+@Config(modid = Lantern.MODID)
+public class LanternConfig {
+
+    @Config.Comment("Distance in blocks between points of the global lighting grid (world-aligned)")
+    @Config.RangeInt(min = 2, max = 16)
+    public static int gridSpacing = 6;
+
+    @Config.Comment("How many Glowstone blocks the Lantern's internal buffer can hold")
+    @Config.RangeInt(min = 1, max = 1024)
+    public static int bufferCapacity = 64;
+
+    @Config.Comment("Only place lights where block light is at or below this level (7 = mob spawn threshold)")
+    @Config.RangeInt(min = 0, max = 14)
+    public static int lightThreshold = 7;
+
+    @Config.Comment("Horizontal radius of the area processed around the player")
+    @Config.RangeInt(min = 1, max = 8)
+    public static int horizontalRadius = 4;
+
+    @Config.Comment("Vertical range scanned above/below the player for torches and ground")
+    @Config.RangeInt(min = 1, max = 8)
+    public static int verticalRange = 4;
+
+    @Config.Comment("How often (in ticks) an active Lantern processes the area")
+    @Config.RangeInt(min = 1, max = 100)
+    public static int tickInterval = 10;
+
+    @Config.Comment("Registry names of torch blocks the Lantern sweeps up")
+    public static String[] torchWhitelist = {"minecraft:torch"};
+
+    @Config.Comment("Registry names of blocks the Lantern must never replace")
+    public static String[] groundBlacklist = {};
+
+    @Mod.EventBusSubscriber(modid = Lantern.MODID)
+    public static class SyncHandler {
+        @SubscribeEvent
+        public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+            if (Lantern.MODID.equals(event.getModID())) {
+                ConfigManager.sync(Lantern.MODID, Config.Type.INSTANCE);
+            }
+        }
+    }
+}
