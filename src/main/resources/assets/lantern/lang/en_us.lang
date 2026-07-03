@@ -1,10 +1,12 @@
 item.lantern.lantern.name=Lantern
 
-tooltip.lantern.active=Active
-tooltip.lantern.inactive=Inactive
-tooltip.lantern.charge=Glowstone: %d/%d
-tooltip.lantern.spacing=Grid: %dx%d
-tooltip.lantern.howto=Sneak + Right-Click to toggle, Right-Click to load Glowstone, Sneak + Scroll to change grid
+tooltip.lantern.active=● Active
+tooltip.lantern.inactive=○ Inactive
+tooltip.lantern.charge=◆ Glowstone: %d/%d
+tooltip.lantern.spacing=■ Grid: %dx%d
+tooltip.lantern.howto1=Sneak + Right-Click to toggle
+tooltip.lantern.howto2=Right-Click to load Glowstone blocks
+tooltip.lantern.howto3=Sneak + Scroll to change the grid
 
 chat.lantern.on=Lantern activated
 chat.lantern.off=Lantern deactivated

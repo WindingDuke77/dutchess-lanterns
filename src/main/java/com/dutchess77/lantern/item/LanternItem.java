@@ -21,6 +21,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -51,7 +52,7 @@ public class LanternItem extends Item {
                 player.sendStatusMessage(new TextComponentTranslation(
                     nowActive ? "chat.lantern.on" : "chat.lantern.off"), true);
                 world.playSound(null, player.posX, player.posY, player.posZ,
-                    SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, nowActive ? 0.8F : 0.6F);
+                    SoundEvents.BLOCK_NOTE_PLING, SoundCategory.PLAYERS, 0.7F, nowActive ? 1.6F : 0.6F);
             }
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
@@ -117,10 +118,17 @@ public class LanternItem extends Item {
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
-        tooltip.add(I18n.format(isActive(stack) ? "tooltip.lantern.active" : "tooltip.lantern.inactive"));
-        tooltip.add(I18n.format("tooltip.lantern.charge", getCharge(stack), LanternConfig.bufferCapacity));
-        tooltip.add(I18n.format("tooltip.lantern.spacing", getSpacing(stack), getSpacing(stack)));
-        tooltip.add(I18n.format("tooltip.lantern.howto"));
+        boolean active = isActive(stack);
+        tooltip.add((active ? TextFormatting.GREEN : TextFormatting.DARK_GRAY)
+            + I18n.format(active ? "tooltip.lantern.active" : "tooltip.lantern.inactive"));
+        tooltip.add(TextFormatting.YELLOW
+            + I18n.format("tooltip.lantern.charge", getCharge(stack), LanternConfig.bufferCapacity));
+        tooltip.add(TextFormatting.AQUA
+            + I18n.format("tooltip.lantern.spacing", getSpacing(stack), getSpacing(stack)));
+        tooltip.add("");
+        tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto1"));
+        tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto2"));
+        tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto3"));
     }
 
     public static boolean isActive(ItemStack stack) {

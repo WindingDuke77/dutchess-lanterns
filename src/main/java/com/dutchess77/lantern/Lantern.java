@@ -25,7 +25,7 @@ public class Lantern {
 
     public static final String MODID = "lantern";
     public static final String NAME = "Lantern";
-    public static final String VERSION = "1.1.0";
+    public static final String VERSION = "1.2.0";
 
     public static Logger LOGGER;
     public static SimpleNetworkWrapper NETWORK;

@@ -1,7 +1,10 @@
 package com.dutchess77.lantern.handler;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -19,11 +22,13 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -53,8 +58,43 @@ public class LanternTickHandler {
 
     private final Set<UUID> warnedNoEnderIO = new HashSet<>();
     private final Map<EntityPlayer, Long> lastFuelWarn = new WeakHashMap<>();
+    private final List<Sparkle> sparkles = new ArrayList<>();
 
     private enum PlaceResult { PLACED, SKIP, NO_FUEL }
+
+    private static final class Sparkle {
+        final WorldServer world;
+        final BlockPos pos;
+        final long expiry;
+
+        Sparkle(WorldServer world, BlockPos pos, long expiry) {
+            this.world = world;
+            this.pos = pos;
+            this.expiry = expiry;
+        }
+    }
+
+    @SubscribeEvent
+    public void onWorldTick(TickEvent.WorldTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || event.world.isRemote || sparkles.isEmpty()
+            || event.world.getTotalWorldTime() % 4 != 0) {
+            return;
+        }
+        Iterator<Sparkle> it = sparkles.iterator();
+        while (it.hasNext()) {
+            Sparkle sparkle = it.next();
+            if (sparkle.world != event.world) {
+                continue;
+            }
+            if (event.world.getTotalWorldTime() >= sparkle.expiry) {
+                it.remove();
+                continue;
+            }
+            sparkle.world.spawnParticle(EnumParticleTypes.END_ROD,
+                sparkle.pos.getX() + 0.5D, sparkle.pos.getY() + 0.4D, sparkle.pos.getZ() + 0.5D,
+                2, 0.25D, 0.15D, 0.25D, 0.005D);
+        }
+    }
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -197,6 +237,10 @@ public class LanternTickHandler {
         }
         IBlockState placed = world.getBlockState(surface);
         world.notifyBlockUpdate(surface, placed, placed, 3);
+        if (world instanceof WorldServer && LanternConfig.sparkleSeconds > 0) {
+            sparkles.add(new Sparkle((WorldServer) world, surface.up(),
+                world.getTotalWorldTime() + LanternConfig.sparkleSeconds * 20L));
+        }
         return PlaceResult.PLACED;
     }
 

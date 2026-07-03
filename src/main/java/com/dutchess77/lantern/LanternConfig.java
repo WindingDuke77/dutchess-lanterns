@@ -21,17 +21,21 @@ public class LanternConfig {
     @Config.RangeInt(min = 0, max = 14)
     public static int lightThreshold = 7;
 
-    @Config.Comment("Horizontal radius of the area processed around the player")
-    @Config.RangeInt(min = 1, max = 8)
-    public static int horizontalRadius = 4;
+    @Config.Comment("Horizontal radius of the area processed around the player (8 = 16x16)")
+    @Config.RangeInt(min = 1, max = 16)
+    public static int horizontalRadius = 8;
 
     @Config.Comment("Vertical range scanned above/below the player for torches and ground")
-    @Config.RangeInt(min = 1, max = 8)
-    public static int verticalRange = 4;
+    @Config.RangeInt(min = 1, max = 16)
+    public static int verticalRange = 8;
 
     @Config.Comment("How often (in ticks) an active Lantern processes the area")
     @Config.RangeInt(min = 1, max = 100)
-    public static int tickInterval = 10;
+    public static int tickInterval = 5;
+
+    @Config.Comment("How long (in seconds) placed lights sparkle")
+    @Config.RangeInt(min = 0, max = 60)
+    public static int sparkleSeconds = 6;
 
     @Config.Comment("Registry names of torch blocks the Lantern sweeps up")
     public static String[] torchWhitelist = {"minecraft:torch"};
