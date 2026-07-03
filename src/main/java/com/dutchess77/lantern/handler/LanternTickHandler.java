@@ -141,7 +141,7 @@ public class LanternTickHandler {
     // ------------------------------------------------------------ grid lights
 
     private void placeLights(World world, EntityPlayer player, ItemStack lantern, BlockPos center, int r, int vr) {
-        int spacing = Math.max(2, LanternConfig.gridSpacing);
+        int spacing = Math.max(2, LanternItem.getSpacing(lantern));
         int minX = center.getX() - r;
         int minZ = center.getZ() - r;
         // first world-grid coordinate >= min (floorMod keeps the grid global in -X/-Z)

@@ -29,6 +29,10 @@ public class LanternItem extends Item {
 
     private static final String TAG_ACTIVE = "Active";
     private static final String TAG_CHARGE = "Charge";
+    private static final String TAG_SPACING = "Spacing";
+
+    public static final int MIN_SPACING = 5;
+    public static final int MAX_SPACING = 7;
 
     public LanternItem() {
         setRegistryName(Lantern.MODID, "lantern");
@@ -115,6 +119,7 @@ public class LanternItem extends Item {
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
         tooltip.add(I18n.format(isActive(stack) ? "tooltip.lantern.active" : "tooltip.lantern.inactive"));
         tooltip.add(I18n.format("tooltip.lantern.charge", getCharge(stack), LanternConfig.bufferCapacity));
+        tooltip.add(I18n.format("tooltip.lantern.spacing", getSpacing(stack), getSpacing(stack)));
         tooltip.add(I18n.format("tooltip.lantern.howto"));
     }
 
@@ -132,6 +137,25 @@ public class LanternItem extends Item {
 
     public static void setCharge(ItemStack stack, int charge) {
         getOrCreateTag(stack).setInteger(TAG_CHARGE, Math.max(0, charge));
+    }
+
+    /** Item-level grid spacing; falls back to the config default when never scrolled. */
+    public static int getSpacing(ItemStack stack) {
+        if (stack.hasTagCompound() && stack.getTagCompound().hasKey(TAG_SPACING)) {
+            return clampSpacing(stack.getTagCompound().getInteger(TAG_SPACING));
+        }
+        return LanternConfig.gridSpacing;
+    }
+
+    /** Shifts spacing by dir (+1/-1) within [MIN_SPACING, MAX_SPACING]; returns the new value. */
+    public static int adjustSpacing(ItemStack stack, int dir) {
+        int next = clampSpacing(clampSpacing(getSpacing(stack)) + Integer.signum(dir));
+        getOrCreateTag(stack).setInteger(TAG_SPACING, next);
+        return next;
+    }
+
+    private static int clampSpacing(int spacing) {
+        return Math.min(MAX_SPACING, Math.max(MIN_SPACING, spacing));
     }
 
     private static NBTTagCompound getOrCreateTag(ItemStack stack) {
