@@ -8,7 +8,7 @@
   "key": {
     "O": { "item": "minecraft:obsidian" },
     "N": { "item": "minecraft:nether_star" },
-    "C": { "item": "enderio:item_basic_capacitor" },
+    "C": { "item": "enderio:item_basic_capacitor", "data": 2 },
     "L": { "item": "lantern:lantern" },
     "R": { "item": "minecraft:redstone_block" }
   },
