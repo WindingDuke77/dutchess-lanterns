@@ -1,0 +1,17 @@
+[
+  {
+    "modid": "lantern",
+    "name": "Lantern",
+    "description": "Sweeps up torches and buries painted glowstone in the ground as you walk.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": ["dutchess77"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "requiredMods": ["forge", "enderio"],
+    "dependencies": ["enderio"]
+  }
+]

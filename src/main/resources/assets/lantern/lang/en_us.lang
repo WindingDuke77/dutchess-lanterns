@@ -1,0 +1,12 @@
+item.lantern.lantern.name=Lantern
+
+tooltip.lantern.active=Active
+tooltip.lantern.inactive=Inactive
+tooltip.lantern.charge=Glowstone: %d/%d
+tooltip.lantern.howto=Sneak + Right-Click to toggle, Right-Click to load Glowstone blocks
+
+chat.lantern.on=Lantern activated
+chat.lantern.off=Lantern deactivated
+chat.lantern.charge=Glowstone: %d/%d
+chat.lantern.no_fuel=Lantern is out of Glowstone
+chat.lantern.no_enderio=The Lantern requires EnderIO's painted glowstone and cannot work in this pack
