@@ -1,0 +1,19 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "ONO",
+    "CLC",
+    "ORO"
+  ],
+  "key": {
+    "O": { "item": "minecraft:obsidian" },
+    "N": { "item": "minecraft:nether_star" },
+    "C": { "item": "enderio:item_basic_capacitor" },
+    "L": { "item": "lantern:lantern" },
+    "R": { "item": "minecraft:redstone_block" }
+  },
+  "result": {
+    "item": "lantern:energy_lantern",
+    "nbt": { "Energy": 0 }
+  }
+}

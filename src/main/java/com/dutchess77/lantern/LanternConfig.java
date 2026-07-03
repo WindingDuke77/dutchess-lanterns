@@ -37,6 +37,14 @@ public class LanternConfig {
     @Config.RangeInt(min = 0, max = 60)
     public static int sparkleSeconds = 6;
 
+    @Config.Comment("Forge Energy capacity of the Energy Lantern")
+    @Config.RangeInt(min = 1000, max = 100000000)
+    public static int energyCapacity = 200000;
+
+    @Config.Comment("Forge Energy cost per placed light for the Energy Lantern")
+    @Config.RangeInt(min = 0, max = 1000000)
+    public static int energyPerLight = 2000;
+
     @Config.Comment("Registry names of torch blocks the Lantern sweeps up")
     public static String[] torchWhitelist = {"minecraft:torch"};
 

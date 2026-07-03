@@ -226,7 +226,7 @@ public class LanternTickHandler {
         if (world.getLightFor(EnumSkyBlock.BLOCK, surface.up()) > LanternConfig.lightThreshold) {
             return PlaceResult.SKIP;
         }
-        if (!consumeFuel(player, lantern)) {
+        if (!((LanternItem) lantern.getItem()).consumePlacementCost(player, lantern)) {
             return PlaceResult.NO_FUEL;
         }
         world.setBlockState(surface, EnderIOPaintHelper.paintedGlowstoneSolid().getDefaultState(), 3);
@@ -336,27 +336,6 @@ public class LanternTickHandler {
         String nameString = name.toString();
         for (String entry : LanternConfig.groundBlacklist) {
             if (nameString.equals(entry)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // ------------------------------------------------------------------ fuel
-
-    private static boolean consumeFuel(EntityPlayer player, ItemStack lantern) {
-        if (player.capabilities.isCreativeMode) {
-            return true;
-        }
-        int charge = LanternItem.getCharge(lantern);
-        if (charge > 0) {
-            LanternItem.setCharge(lantern, charge - 1);
-            return true;
-        }
-        Item glowstone = Item.getItemFromBlock(Blocks.GLOWSTONE);
-        for (ItemStack slot : player.inventory.mainInventory) {
-            if (!slot.isEmpty() && slot.getItem() == glowstone && !slot.hasTagCompound()) {
-                slot.shrink(1);
                 return true;
             }
         }

@@ -1,14 +1,18 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "forge:ore_shaped",
   "pattern": [
-    " I ",
-    "ITI",
-    " G "
+    "OGO",
+    "GTG",
+    "ODO"
   ],
   "key": {
-    "I": { "item": "minecraft:iron_ingot" },
+    "O": { "item": "minecraft:obsidian" },
+    "G": { "item": "minecraft:glowstone" },
     "T": { "item": "minecraft:torch" },
-    "G": { "item": "minecraft:glowstone" }
+    "D": { "item": "minecraft:diamond" }
   },
-  "result": { "item": "lantern:lantern" }
+  "result": {
+    "item": "lantern:lantern",
+    "nbt": { "Charge": 0 }
+  }
 }

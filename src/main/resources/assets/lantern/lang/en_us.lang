@@ -1,16 +1,20 @@
 item.lantern.lantern.name=Lantern
+item.lantern.energy_lantern.name=Energy Lantern
 
 tooltip.lantern.active=● Active
 tooltip.lantern.inactive=○ Inactive
 tooltip.lantern.charge=◆ Glowstone: %d/%d
 tooltip.lantern.spacing=■ Grid: %dx%d
+tooltip.lantern.energy=◆ Energy: %d/%d FE
 tooltip.lantern.howto1=Sneak + Right-Click to toggle
 tooltip.lantern.howto2=Right-Click to load Glowstone blocks
+tooltip.lantern.howto2_energy=Charge in any FE item charger
 tooltip.lantern.howto3=Sneak + Scroll to change the grid
 
 chat.lantern.on=Lantern activated
 chat.lantern.off=Lantern deactivated
 chat.lantern.charge=Glowstone: %d/%d
+chat.lantern.energy=Energy: %d/%d FE
 chat.lantern.spacing=Grid: %dx%d
 chat.lantern.no_fuel=Lantern is out of Glowstone
 chat.lantern.no_enderio=The Lantern requires EnderIO's painted glowstone and cannot work in this pack

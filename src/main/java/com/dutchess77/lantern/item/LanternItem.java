@@ -36,8 +36,12 @@ public class LanternItem extends Item {
     public static final int MAX_SPACING = 7;
 
     public LanternItem() {
-        setRegistryName(Lantern.MODID, "lantern");
-        setTranslationKey(Lantern.MODID + ".lantern");
+        this("lantern");
+    }
+
+    protected LanternItem(String name) {
+        setRegistryName(Lantern.MODID, name);
+        setTranslationKey(Lantern.MODID + "." + name);
         setCreativeTab(CreativeTabs.TOOLS);
         setMaxStackSize(1);
     }
@@ -57,18 +61,13 @@ public class LanternItem extends Item {
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
         if (!world.isRemote) {
-            int moved = fillFromInventory(player, stack);
-            player.sendStatusMessage(new TextComponentTranslation("chat.lantern.charge",
-                getCharge(stack), LanternConfig.bufferCapacity), true);
-            if (moved > 0) {
-                world.playSound(null, player.posX, player.posY, player.posZ,
-                    SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.PLAYERS, 0.6F, 1.0F);
-            }
+            fill(player, stack);
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
 
-    private static int fillFromInventory(EntityPlayer player, ItemStack stack) {
+    /** Plain right-click. The base lantern loads Glowstone blocks from the inventory. */
+    protected void fill(EntityPlayer player, ItemStack stack) {
         int capacity = LanternConfig.bufferCapacity;
         int charge = Math.min(getCharge(stack), capacity);
         int moved = 0;
@@ -85,7 +84,35 @@ public class LanternItem extends Item {
             }
         }
         setCharge(stack, charge);
-        return moved;
+        player.sendStatusMessage(new TextComponentTranslation("chat.lantern.charge",
+            charge, capacity), true);
+        if (moved > 0) {
+            player.world.playSound(null, player.posX, player.posY, player.posZ,
+                SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.PLAYERS, 0.6F, 1.0F);
+        }
+    }
+
+    /**
+     * Pays for one placed light. The base lantern spends its Glowstone buffer,
+     * then raw Glowstone blocks from the inventory.
+     */
+    public boolean consumePlacementCost(EntityPlayer player, ItemStack stack) {
+        if (player.capabilities.isCreativeMode) {
+            return true;
+        }
+        int charge = getCharge(stack);
+        if (charge > 0) {
+            setCharge(stack, charge - 1);
+            return true;
+        }
+        Item glowstone = Item.getItemFromBlock(Blocks.GLOWSTONE);
+        for (ItemStack slot : player.inventory.mainInventory) {
+            if (!slot.isEmpty() && slot.getItem() == glowstone && !slot.hasTagCompound()) {
+                slot.shrink(1);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -111,7 +138,7 @@ public class LanternItem extends Item {
 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-        // charge NBT churns every placement pass; only re-equip on a real change
+        // fuel NBT churns every placement pass; only re-equip on a real change
         return slotChanged || oldStack.getItem() != newStack.getItem();
     }
 
@@ -121,14 +148,23 @@ public class LanternItem extends Item {
         boolean active = isActive(stack);
         tooltip.add((active ? TextFormatting.GREEN : TextFormatting.DARK_GRAY)
             + I18n.format(active ? "tooltip.lantern.active" : "tooltip.lantern.inactive"));
-        tooltip.add(TextFormatting.YELLOW
-            + I18n.format("tooltip.lantern.charge", getCharge(stack), LanternConfig.bufferCapacity));
+        tooltip.add(describeFuel(stack));
         tooltip.add(TextFormatting.AQUA
             + I18n.format("tooltip.lantern.spacing", getSpacing(stack), getSpacing(stack)));
         tooltip.add("");
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto1"));
-        tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto2"));
+        tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format(howtoFillKey()));
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto3"));
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected String describeFuel(ItemStack stack) {
+        return TextFormatting.YELLOW
+            + I18n.format("tooltip.lantern.charge", getCharge(stack), LanternConfig.bufferCapacity);
+    }
+
+    protected String howtoFillKey() {
+        return "tooltip.lantern.howto2";
     }
 
     public static boolean isActive(ItemStack stack) {
@@ -139,8 +175,12 @@ public class LanternItem extends Item {
         getOrCreateTag(stack).setBoolean(TAG_ACTIVE, active);
     }
 
+    /** A stack with no Charge tag (/give, creative menu, JEI) counts as full; crafted stacks carry Charge:0. */
     public static int getCharge(ItemStack stack) {
-        return stack.hasTagCompound() ? stack.getTagCompound().getInteger(TAG_CHARGE) : 0;
+        if (stack.hasTagCompound() && stack.getTagCompound().hasKey(TAG_CHARGE)) {
+            return stack.getTagCompound().getInteger(TAG_CHARGE);
+        }
+        return LanternConfig.bufferCapacity;
     }
 
     public static void setCharge(ItemStack stack, int charge) {
@@ -166,7 +206,7 @@ public class LanternItem extends Item {
         return Math.min(MAX_SPACING, Math.max(MIN_SPACING, spacing));
     }
 
-    private static NBTTagCompound getOrCreateTag(ItemStack stack) {
+    protected static NBTTagCompound getOrCreateTag(ItemStack stack) {
         if (!stack.hasTagCompound()) {
             stack.setTagCompound(new NBTTagCompound());
         }
