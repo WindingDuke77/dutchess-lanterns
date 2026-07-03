@@ -23,6 +23,7 @@ public final class EnderIOPaintHelper {
 
     private static Block paintedGlowstone;
     private static Method setPaintSource;
+    private static Method getPaintSource;
     private static boolean lookupFailed;
     private static boolean paintBroken;
 
@@ -81,6 +82,27 @@ public final class EnderIOPaintHelper {
                 paintBroken = true;
                 Lantern.LOGGER.warn("Failed to paint glowstone; lights will stay unpainted", t);
             }
+        }
+    }
+
+    /** Reads the paint back off a placed light; null when unpainted or unreadable. */
+    public static IBlockState getPaint(TileEntity te) {
+        if (te == null) {
+            return null;
+        }
+        try {
+            if (getPaintSource == null) {
+                for (Method method : te.getClass().getMethods()) {
+                    if ("getPaintSource".equals(method.getName()) && method.getParameterCount() == 0) {
+                        method.setAccessible(true);
+                        getPaintSource = method;
+                        break;
+                    }
+                }
+            }
+            return getPaintSource != null ? (IBlockState) getPaintSource.invoke(te) : null;
+        } catch (Throwable t) {
+            return null;
         }
     }
 }

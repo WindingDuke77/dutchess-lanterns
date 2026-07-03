@@ -17,6 +17,7 @@ import com.dutchess77.lantern.item.LanternItem;
 import com.dutchess77.lantern.item.TorchLanternItem;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -320,7 +321,7 @@ public class LanternTickHandler {
      * Topmost block in the column a mob could stand on (solid up-face, open
      * above) - regardless of whether the Lantern may replace it.
      */
-    private BlockPos findStandableSurface(World world, int x, int z, int centerY, int vr) {
+    public static BlockPos findStandableSurface(World world, int x, int z, int centerY, int vr) {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         boolean openAbove = false;
         for (int y = centerY + vr + 1; y >= centerY - vr; y--) {
@@ -418,7 +419,7 @@ public class LanternTickHandler {
         return null;
     }
 
-    private static boolean isLamp(Block block) {
+    public static boolean isLamp(Block block) {
         return EnderIOPaintHelper.isPaintedGlowstone(block) || block == Blocks.GLOWSTONE;
     }
 
@@ -433,10 +434,17 @@ public class LanternTickHandler {
         return state.getBlock().isReplaceable(world, pos) || !state.isOpaqueCube();
     }
 
-    /** Any full solid block may host a light, bar light sources, containers, unbreakables, ores, and the blacklist. */
-    private static boolean isValidGround(IBlockState state, World world, BlockPos pos) {
+    /**
+     * Any full OPAQUE block may host a light, bar light sources, leaves,
+     * containers, unbreakables, ores, and the blacklist. Transparent blocks
+     * (leaves, glass, ...) are never replaced - they only count as open space.
+     */
+    public static boolean isValidGround(IBlockState state, World world, BlockPos pos) {
         Block block = state.getBlock();
         if (state.getLightValue(world, pos) > 0) { // never waste a block replacing an existing light
+            return false;
+        }
+        if (state.getMaterial() == Material.LEAVES || !state.isOpaqueCube()) {
             return false;
         }
         if (block.hasTileEntity(state)) {
@@ -455,7 +463,7 @@ public class LanternTickHandler {
     }
 
     /** Never convert ores into lighting: reject anything ore-dictionaried as ore*. */
-    private static boolean isOre(IBlockState state) {
+    public static boolean isOre(IBlockState state) {
         Boolean cached = ORE_CACHE.get(state);
         if (cached != null) {
             return cached;
@@ -483,7 +491,7 @@ public class LanternTickHandler {
         return ore;
     }
 
-    private static boolean isBlacklisted(Block block) {
+    public static boolean isBlacklisted(Block block) {
         ResourceLocation name = block.getRegistryName();
         if (name == null) {
             return true;
