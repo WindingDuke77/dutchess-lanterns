@@ -16,7 +16,6 @@ import com.dutchess77.lantern.item.LanternItem;
 import com.dutchess77.lantern.item.TorchLanternItem;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -47,17 +46,6 @@ public class LanternTickHandler {
     private static final EnumFacing[] EXPOSED_FACES = {
         EnumFacing.UP, EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.WEST
     };
-
-    private static final Set<Material> GROUND_MATERIALS = new HashSet<>();
-    static {
-        GROUND_MATERIALS.add(Material.GROUND);
-        GROUND_MATERIALS.add(Material.GRASS);
-        GROUND_MATERIALS.add(Material.ROCK);
-        GROUND_MATERIALS.add(Material.SAND);
-        GROUND_MATERIALS.add(Material.CLAY);
-        GROUND_MATERIALS.add(Material.CRAFTED_SNOW);
-        GROUND_MATERIALS.add(Material.WOOD);
-    }
 
     private static final Map<IBlockState, Boolean> ORE_CACHE = new IdentityHashMap<>();
 
@@ -423,11 +411,9 @@ public class LanternTickHandler {
         return state.getBlock().isReplaceable(world, pos) || !state.isOpaqueCube();
     }
 
+    /** Any full solid block may host a light, bar containers, unbreakables, ores, and the blacklist. */
     private static boolean isValidGround(IBlockState state, World world, BlockPos pos) {
         Block block = state.getBlock();
-        if (!GROUND_MATERIALS.contains(state.getMaterial())) {
-            return false;
-        }
         if (block.hasTileEntity(state)) {
             return false;
         }
