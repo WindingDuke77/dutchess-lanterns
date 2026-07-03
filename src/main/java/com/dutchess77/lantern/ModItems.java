@@ -1,5 +1,6 @@
 package com.dutchess77.lantern;
 
+import com.dutchess77.lantern.item.CreativeLanternItem;
 import com.dutchess77.lantern.item.EnergyLanternItem;
 import com.dutchess77.lantern.item.LanternItem;
 import com.dutchess77.lantern.item.TorchLanternItem;
@@ -19,12 +20,14 @@ public class ModItems {
     public static final LanternItem LANTERN = new LanternItem();
     public static final EnergyLanternItem ENERGY_LANTERN = new EnergyLanternItem();
     public static final TorchLanternItem TORCH_LANTERN = new TorchLanternItem();
+    public static final CreativeLanternItem CREATIVE_LANTERN = new CreativeLanternItem();
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().register(LANTERN);
         event.getRegistry().register(ENERGY_LANTERN);
         event.getRegistry().register(TORCH_LANTERN);
+        event.getRegistry().register(CREATIVE_LANTERN);
     }
 
     @Mod.EventBusSubscriber(value = Side.CLIENT, modid = Lantern.MODID)
@@ -37,6 +40,8 @@ public class ModItems {
                 new ModelResourceLocation(ENERGY_LANTERN.getRegistryName(), "inventory"));
             ModelLoader.setCustomModelResourceLocation(TORCH_LANTERN, 0,
                 new ModelResourceLocation(TORCH_LANTERN.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(CREATIVE_LANTERN, 0,
+                new ModelResourceLocation(CREATIVE_LANTERN.getRegistryName(), "inventory"));
         }
     }
 }

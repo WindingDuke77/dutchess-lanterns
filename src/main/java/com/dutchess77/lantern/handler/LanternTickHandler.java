@@ -12,6 +12,7 @@ import java.util.WeakHashMap;
 
 import com.dutchess77.lantern.LanternConfig;
 import com.dutchess77.lantern.compat.EnderIOPaintHelper;
+import com.dutchess77.lantern.item.CreativeLanternItem;
 import com.dutchess77.lantern.item.LanternItem;
 import com.dutchess77.lantern.item.TorchLanternItem;
 
@@ -40,11 +41,6 @@ public class LanternTickHandler {
     /** Exact grid column first is implicit; these are the +-1 fallbacks (N, E, S, W, then diagonals). */
     private static final int[][] NEIGHBOR_OFFSETS = {
         {0, -1}, {1, 0}, {0, 1}, {-1, 0}, {1, -1}, {1, 1}, {-1, 1}, {-1, -1}
-    };
-
-    /** Faces a light may shine out of: floor placements first, then wall placements. */
-    private static final EnumFacing[] EXPOSED_FACES = {
-        EnumFacing.UP, EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.WEST
     };
 
     private static final Map<IBlockState, Boolean> ORE_CACHE = new IdentityHashMap<>();
@@ -113,14 +109,16 @@ public class LanternTickHandler {
 
         if (lantern.getItem() instanceof TorchLanternItem) {
             // torch mode: no sweep, no EnderIO needed
-            if (placeGrid(world, player, lantern, center, r, vr, true)
+            if (placeGrid(world, player, lantern, center, r, vr, true, false)
                 && LanternConfig.fillGaps) {
-                fillGapsPass(world, player, lantern, center, r, vr, true);
+                fillGapsPass(world, player, lantern, center, r, vr, true, false);
             }
             return;
         }
 
-        if (!EnderIOPaintHelper.isAvailable()) {
+        // creative lantern places plain visible glowstone, no EnderIO needed
+        boolean visible = lantern.getItem() instanceof CreativeLanternItem;
+        if (!visible && !EnderIOPaintHelper.isAvailable()) {
             if (warnedNoEnderIO.add(player.getUniqueID())) {
                 player.sendMessage(new TextComponentTranslation("chat.lantern.no_enderio"));
             }
@@ -128,8 +126,8 @@ public class LanternTickHandler {
         }
 
         sweepTorches(world, player, center, r, vr);
-        if (placeGrid(world, player, lantern, center, r, vr, false) && LanternConfig.fillGaps) {
-            fillGapsPass(world, player, lantern, center, r, vr, false);
+        if (placeGrid(world, player, lantern, center, r, vr, false, visible) && LanternConfig.fillGaps) {
+            fillGapsPass(world, player, lantern, center, r, vr, false, visible);
         }
     }
 
@@ -190,7 +188,7 @@ public class LanternTickHandler {
 
     /** Returns false when it ran out of fuel (skip the gap-fill pass). */
     private boolean placeGrid(World world, EntityPlayer player, ItemStack lantern, BlockPos center,
-                              int r, int vr, boolean torchMode) {
+                              int r, int vr, boolean torchMode, boolean visible) {
         int spacing = Math.max(2, LanternConfig.gridSpacing);
         int minX = center.getX() - r;
         int minZ = center.getZ() - r;
@@ -202,7 +200,7 @@ public class LanternTickHandler {
             for (int gz = startZ; gz <= center.getZ() + r; gz += spacing) {
                 PlaceResult result = torchMode
                     ? tryPlaceTorch(world, player, lantern, gx, gz, center.getY(), vr, false)
-                    : tryPlaceAtGridPoint(world, player, lantern, gx, gz, center.getY(), vr, false);
+                    : tryPlaceAtGridPoint(world, player, lantern, gx, gz, center.getY(), vr, visible);
                 if (result == PlaceResult.NO_FUEL) {
                     warnNoFuel(world, player);
                     return false;
@@ -214,12 +212,13 @@ public class LanternTickHandler {
 
     /**
      * Sweeps every column for spots a mob could stand on that the grid left
-     * dark (walls, unplaceable ground, terrain shadows) and lights them - at
-     * the column itself or a +-1 neighbor. Freshly placed lights raise the
-     * light level of the surrounding columns, so the pass self-limits.
+     * dark and fixes each one with a light anchored to that exact spot: the
+     * floor under it, a wall directly beside it, or a neighboring floor at
+     * similar height. Freshly placed lights raise the light level of the
+     * surrounding columns, so the pass self-limits.
      */
     private void fillGapsPass(World world, EntityPlayer player, ItemStack lantern, BlockPos center,
-                              int r, int vr, boolean torchMode) {
+                              int r, int vr, boolean torchMode, boolean visible) {
         for (int x = center.getX() - r; x <= center.getX() + r; x++) {
             for (int z = center.getZ() - r; z <= center.getZ() + r; z++) {
                 BlockPos standable = findStandableSurface(world, x, z, center.getY(), vr);
@@ -227,16 +226,57 @@ public class LanternTickHandler {
                     || world.getLightFor(EnumSkyBlock.BLOCK, standable.up()) > LanternConfig.lightThreshold) {
                     continue;
                 }
-                // verified-dark spot: place here or next door, ignoring the spot's own light
                 PlaceResult result = torchMode
                     ? tryPlaceTorch(world, player, lantern, x, z, center.getY(), vr, true)
-                    : tryPlaceAtGridPoint(world, player, lantern, x, z, center.getY(), vr, true);
+                    : rescueDark(world, player, lantern, standable, visible);
                 if (result == PlaceResult.NO_FUEL) {
                     warnNoFuel(world, player);
                     return;
                 }
             }
         }
+    }
+
+    /**
+     * Lights a verified-dark standable spot with a placement anchored to it,
+     * so the new light actually reaches the spot: floor under it first, then
+     * the walls beside it, then a neighboring column's floor within 2 blocks
+     * of its height. Light checks are skipped - the spot is known dark.
+     */
+    private PlaceResult rescueDark(World world, EntityPlayer player, ItemStack lantern,
+                                   BlockPos surface, boolean visible) {
+        BlockPos air = surface.up();
+        if (canHost(world, surface)) {
+            return placeAt(world, player, lantern, surface, air, visible);
+        }
+        for (EnumFacing facing : EnumFacing.HORIZONTALS) {
+            BlockPos wall = air.offset(facing);
+            if (canHost(world, wall)) {
+                return placeAt(world, player, lantern, wall, air, visible);
+            }
+        }
+        for (EnumFacing facing : EnumFacing.HORIZONTALS) {
+            BlockPos wall = surface.offset(facing);
+            if (canHost(world, wall)) {
+                return placeAt(world, player, lantern, wall, air, visible);
+            }
+        }
+        for (int[] offset : NEIGHBOR_OFFSETS) {
+            BlockPos neighborFloor = findStandableSurface(world,
+                surface.getX() + offset[0], surface.getZ() + offset[1], surface.getY(), 2);
+            if (neighborFloor != null && canHost(world, neighborFloor)) {
+                return placeAt(world, player, lantern, neighborFloor, air, visible);
+            }
+        }
+        return PlaceResult.SKIP;
+    }
+
+    private static boolean canHost(World world, BlockPos pos) {
+        if (!world.isBlockLoaded(pos)) {
+            return false;
+        }
+        IBlockState state = world.getBlockState(pos);
+        return !isLamp(state.getBlock()) && isValidGround(state, world, pos);
     }
 
     /** Torch mode: stand a vanilla torch on the surface instead of replacing it. */
@@ -301,71 +341,64 @@ public class LanternTickHandler {
         return null;
     }
 
-    /** A solid block the light can be embedded in, plus the open face it shines from. */
-    private static final class Spot {
-        final BlockPos target;
-        final BlockPos open;
-
-        Spot(BlockPos target, BlockPos open) {
-            this.target = target;
-            this.open = open;
-        }
-    }
-
+    /** Grid pass: floors only - walls are handled by the anchored gap-fill rescue. */
     private PlaceResult tryPlaceAtGridPoint(World world, EntityPlayer player, ItemStack lantern,
-                                            int gx, int gz, int centerY, int vr, boolean ignoreLight) {
-        Spot spot = findSpot(world, gx, gz, centerY, vr);
-        if (spot == null) {
+                                            int gx, int gz, int centerY, int vr, boolean visible) {
+        BlockPos floor = findFloor(world, gx, gz, centerY, vr);
+        if (floor == null) {
             // exact grid column obstructed: shift by one, first valid column wins
             for (int[] offset : NEIGHBOR_OFFSETS) {
-                spot = findSpot(world, gx + offset[0], gz + offset[1], centerY, vr);
-                if (spot != null) {
+                floor = findFloor(world, gx + offset[0], gz + offset[1], centerY, vr);
+                if (floor != null) {
                     break;
                 }
             }
         }
-        if (spot == null) {
+        if (floor == null) {
             return PlaceResult.SKIP;
         }
-        return placeIfDark(world, player, lantern, spot, ignoreLight);
+        if (isLamp(world.getBlockState(floor).getBlock())) {
+            return PlaceResult.SKIP;
+        }
+        // block light only: daylight must not mask ground that goes dark at night
+        if (world.getLightFor(EnumSkyBlock.BLOCK, floor.up()) > LanternConfig.lightThreshold) {
+            return PlaceResult.SKIP;
+        }
+        return placeAt(world, player, lantern, floor, floor.up(), visible);
     }
 
-    private PlaceResult placeIfDark(World world, EntityPlayer player, ItemStack lantern, Spot spot,
-                                    boolean ignoreLight) {
-        IBlockState original = world.getBlockState(spot.target);
-        if (EnderIOPaintHelper.isPaintedGlowstone(original.getBlock())) {
-            return PlaceResult.SKIP;
-        }
-        // block light only: daylight must not mask ground that goes dark at night.
-        // ignoreLight = the caller already verified a nearby spot is dark.
-        if (!ignoreLight
-            && world.getLightFor(EnumSkyBlock.BLOCK, spot.open) > LanternConfig.lightThreshold) {
-            return PlaceResult.SKIP;
-        }
+    /** Consumes fuel and swaps the target block for a light; sparkles at the spot it serves. */
+    private PlaceResult placeAt(World world, EntityPlayer player, ItemStack lantern,
+                                BlockPos target, BlockPos sparkleAt, boolean visible) {
         if (!((LanternItem) lantern.getItem()).consumePlacementCost(player, lantern)) {
             return PlaceResult.NO_FUEL;
         }
-        world.setBlockState(spot.target, EnderIOPaintHelper.paintedGlowstoneSolid().getDefaultState(), 3);
-        TileEntity te = world.getTileEntity(spot.target);
-        EnderIOPaintHelper.paint(te, original);
-        if (te != null) {
-            te.markDirty();
+        IBlockState original = world.getBlockState(target);
+        if (visible) {
+            world.setBlockState(target, Blocks.GLOWSTONE.getDefaultState(), 3);
+        } else {
+            world.setBlockState(target, EnderIOPaintHelper.paintedGlowstoneSolid().getDefaultState(), 3);
+            TileEntity te = world.getTileEntity(target);
+            EnderIOPaintHelper.paint(te, original);
+            if (te != null) {
+                te.markDirty();
+            }
+            IBlockState placed = world.getBlockState(target);
+            world.notifyBlockUpdate(target, placed, placed, 3);
         }
-        IBlockState placed = world.getBlockState(spot.target);
-        world.notifyBlockUpdate(spot.target, placed, placed, 3);
         if (world instanceof WorldServer && LanternConfig.sparkleSeconds > 0) {
-            sparkles.add(new Sparkle((WorldServer) world, spot.open,
+            sparkles.add(new Sparkle((WorldServer) world, sparkleAt,
                 world.getTotalWorldTime() + LanternConfig.sparkleSeconds * 20L));
         }
         return PlaceResult.PLACED;
     }
 
     /**
-     * Topmost solid block in the column (within the vertical window) with an
-     * exposed face - open or transparent above (floors, incl. under glass) or
-     * beside it (walls). Only valid ground or an already-placed light counts.
+     * Topmost replaceable floor block in the column: valid ground (or an
+     * existing lamp, so lit columns skip cleanly) with open or transparent
+     * space directly above.
      */
-    private Spot findSpot(World world, int x, int z, int centerY, int vr) {
+    private BlockPos findFloor(World world, int x, int z, int centerY, int vr) {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int y = centerY + vr; y >= centerY - vr; y--) {
             pos.setPos(x, y, z);
@@ -373,31 +406,20 @@ public class LanternTickHandler {
                 return null;
             }
             IBlockState state = world.getBlockState(pos);
-            boolean candidate = EnderIOPaintHelper.isPaintedGlowstone(state.getBlock())
-                || isValidGround(state, world, pos);
-            if (!candidate) {
+            if (!isLamp(state.getBlock()) && !isValidGround(state, world, pos)) {
                 continue;
             }
-            BlockPos open = findOpenFace(world, pos);
-            if (open != null) {
-                return new Spot(new BlockPos(x, y, z), open);
+            BlockPos up = pos.up();
+            IBlockState upState = world.getBlockState(up);
+            if (isOpen(upState, world, up)) {
+                return new BlockPos(x, y, z);
             }
         }
         return null;
     }
 
-    private static BlockPos findOpenFace(World world, BlockPos pos) {
-        for (EnumFacing face : EXPOSED_FACES) {
-            BlockPos neighbor = pos.offset(face);
-            if (!world.isBlockLoaded(neighbor)) {
-                continue;
-            }
-            IBlockState state = world.getBlockState(neighbor);
-            if (isOpen(state, world, neighbor)) {
-                return neighbor;
-            }
-        }
-        return null;
+    private static boolean isLamp(Block block) {
+        return EnderIOPaintHelper.isPaintedGlowstone(block) || block == Blocks.GLOWSTONE;
     }
 
     private static boolean isOpen(IBlockState state, World world, BlockPos pos) {
@@ -411,9 +433,12 @@ public class LanternTickHandler {
         return state.getBlock().isReplaceable(world, pos) || !state.isOpaqueCube();
     }
 
-    /** Any full solid block may host a light, bar containers, unbreakables, ores, and the blacklist. */
+    /** Any full solid block may host a light, bar light sources, containers, unbreakables, ores, and the blacklist. */
     private static boolean isValidGround(IBlockState state, World world, BlockPos pos) {
         Block block = state.getBlock();
+        if (state.getLightValue(world, pos) > 0) { // never waste a block replacing an existing light
+            return false;
+        }
         if (block.hasTileEntity(state)) {
             return false;
         }

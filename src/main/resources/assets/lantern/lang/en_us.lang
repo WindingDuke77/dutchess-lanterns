@@ -1,6 +1,7 @@
 item.lantern.lantern.name=Lantern
 item.lantern.energy_lantern.name=Energy Lantern
 item.lantern.torch_lantern.name=Torch Lantern
+item.lantern.creative_lantern.name=Creative Lantern
 
 tooltip.lantern.active=● Active
 tooltip.lantern.inactive=○ Inactive
@@ -10,15 +11,19 @@ tooltip.lantern.torches=◆ Torches: %d/%d
 tooltip.lantern.cost=Cost: 1 Glowstone block per light
 tooltip.lantern.cost_energy=Cost: %s FE per light
 tooltip.lantern.cost_torch=Cost: 1 Torch per light
+tooltip.lantern.cost_creative=Cost: free
+tooltip.lantern.unlimited=◆ Unlimited
 tooltip.lantern.howto1=Sneak + Right-Click to toggle
 tooltip.lantern.howto2=Right-Click to load Glowstone blocks
 tooltip.lantern.howto2_energy=Charge in any FE item charger
 tooltip.lantern.howto2_torch=Right-Click to load Torches
+tooltip.lantern.howto2_creative=Places visible Glowstone, costs nothing
 
 chat.lantern.on=Lantern activated
 chat.lantern.off=Lantern deactivated
 chat.lantern.charge=Glowstone: %d/%d
 chat.lantern.energy=Energy: %s/%s FE
 chat.lantern.torches=Torches: %d/%d
+chat.lantern.creative=Creative Lantern: unlimited, places visible Glowstone
 chat.lantern.no_fuel=Lantern is out of fuel
 chat.lantern.no_enderio=The Lantern requires EnderIO's painted glowstone and cannot work in this pack
