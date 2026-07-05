@@ -6,7 +6,9 @@ import javax.annotation.Nullable;
 
 import com.dutchess77.lantern.Lantern;
 import com.dutchess77.lantern.LanternConfig;
+import com.dutchess77.lantern.compat.EnderIOPaintHelper;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -18,13 +20,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 public class LanternItem extends Item implements baubles.api.IBauble {
 
@@ -40,6 +47,65 @@ public class LanternItem extends Item implements baubles.api.IBauble {
         setTranslationKey(Lantern.MODID + "." + name);
         setCreativeTab(CreativeTabs.TOOLS);
         setMaxStackSize(1);
+    }
+
+    /** Sneak + use ON A BLOCK reclaims placed hidden lights around it (air-click still toggles). */
+    @Override
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand,
+                                      EnumFacing facing, float hitX, float hitY, float hitZ) {
+        if (!player.isSneaking()) {
+            return EnumActionResult.PASS;
+        }
+        if (!world.isRemote) {
+            int reclaimed = reclaimLights(player, player.getHeldItem(hand), world, pos);
+            player.sendStatusMessage(new TextComponentTranslation("chat.lantern.reclaimed", reclaimed), true);
+            if (reclaimed > 0) {
+                world.playSound(null, player.posX, player.posY, player.posZ,
+                    SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 0.5F, 0.8F);
+            }
+        }
+        return EnumActionResult.SUCCESS;
+    }
+
+    private int reclaimLights(EntityPlayer player, ItemStack lantern, World world, BlockPos center) {
+        int rh = LanternConfig.horizontalRadius;
+        int rv = LanternConfig.verticalRange;
+        int count = 0;
+        for (BlockPos pos : BlockPos.getAllInBoxMutable(center.add(-rh, -rv, -rh), center.add(rh, rv, rh))) {
+            if (!world.isBlockLoaded(pos)) {
+                continue;
+            }
+            if (EnderIOPaintHelper.isPaintedGlowstone(world.getBlockState(pos).getBlock())) {
+                IBlockState paint = EnderIOPaintHelper.getPaint(world.getTileEntity(pos));
+                world.setBlockState(pos.toImmutable(),
+                    paint != null ? paint : Blocks.STONE.getDefaultState(), 3);
+                count++;
+            }
+        }
+        if (count > 0 && refundOnReclaim()) {
+            refundReclaimed(player, lantern, count);
+        }
+        return count;
+    }
+
+    protected boolean refundOnReclaim() {
+        return true;
+    }
+
+    /** Refund reclaimed lights as Glowstone: buffer first when this lantern burns Glowstone, else items. */
+    protected void refundReclaimed(EntityPlayer player, ItemStack lantern, int count) {
+        if (fuelItem() == Item.getItemFromBlock(Blocks.GLOWSTONE)) {
+            int capacity = LanternConfig.bufferCapacity;
+            int charge = Math.min(getCharge(lantern), capacity);
+            int toBuffer = Math.min(count, capacity - charge);
+            setCharge(lantern, charge + toBuffer);
+            count -= toBuffer;
+        }
+        while (count > 0) {
+            int give = Math.min(64, count);
+            ItemHandlerHelper.giveItemToPlayer(player, new ItemStack(Blocks.GLOWSTONE, give));
+            count -= give;
+        }
     }
 
     @Override
@@ -88,6 +154,26 @@ public class LanternItem extends Item implements baubles.api.IBauble {
                 moved += take;
             }
         }
+        // top up from carried containers (backpacks etc.)
+        if (LanternConfig.refillFromContainers && charge < capacity) {
+            for (ItemStack held : player.inventory.mainInventory) {
+                if (charge >= capacity) {
+                    break;
+                }
+                IItemHandler container = containerOf(held);
+                if (container == null) {
+                    continue;
+                }
+                for (int i = 0; i < container.getSlots() && charge < capacity; i++) {
+                    ItemStack inside = container.getStackInSlot(i);
+                    if (!inside.isEmpty() && inside.getItem() == fuel && !inside.hasTagCompound()) {
+                        ItemStack taken = container.extractItem(i, capacity - charge, false);
+                        charge += taken.getCount();
+                        moved += taken.getCount();
+                    }
+                }
+            }
+        }
         setCharge(stack, charge);
         player.sendStatusMessage(new TextComponentTranslation(chargeChatKey(),
             charge, capacity), true);
@@ -114,7 +200,37 @@ public class LanternItem extends Item implements baubles.api.IBauble {
                 return true;
             }
         }
+        return pullOneFromContainers(player, fuel);
+    }
+
+    /** Last resort: pull a single fuel item out of a carried container (backpack etc.). */
+    private static boolean pullOneFromContainers(EntityPlayer player, Item fuel) {
+        if (!LanternConfig.refillFromContainers) {
+            return false;
+        }
+        for (ItemStack held : player.inventory.mainInventory) {
+            IItemHandler container = containerOf(held);
+            if (container == null) {
+                continue;
+            }
+            for (int i = 0; i < container.getSlots(); i++) {
+                ItemStack inside = container.getStackInSlot(i);
+                if (!inside.isEmpty() && inside.getItem() == fuel && !inside.hasTagCompound()
+                    && !container.extractItem(i, 1, false).isEmpty()) {
+                    return true;
+                }
+            }
+        }
         return false;
+    }
+
+    private static IItemHandler containerOf(ItemStack stack) {
+        if (stack.isEmpty() || stack.getItem() instanceof LanternItem) {
+            return null;
+        }
+        return stack.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)
+            ? stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)
+            : null;
     }
 
     @Override

@@ -1,0 +1,16 @@
+{
+  "display": {
+    "icon": { "item": "lantern:lantern" },
+    "title": "Let There Be Light",
+    "description": "Get a Lantern - it sweeps torches and buries invisible glowstone as you walk",
+    "background": "minecraft:textures/blocks/glowstone.png",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "has_lantern": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [ { "item": "lantern:lantern" } ] }
+    }
+  }
+}

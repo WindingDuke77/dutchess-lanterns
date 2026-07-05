@@ -100,6 +100,13 @@ public class LanternTickHandler {
         if (world.isRemote || player.ticksExisted % LanternConfig.tickInterval != 0) {
             return;
         }
+        int dimension = world.provider.getDimension();
+        for (int blocked : LanternConfig.dimensionBlacklist) {
+            if (blocked == dimension) {
+                return;
+            }
+        }
+
         ItemStack lantern = findActiveLantern(player);
         if (lantern.isEmpty()) {
             return;
@@ -444,7 +451,8 @@ public class LanternTickHandler {
             return true;
         }
         if (state.getMaterial().isLiquid()) {
-            return false;
+            // water counts as open so ocean/lake floors get lit; lava never does
+            return LanternConfig.lightUnderwater && state.getMaterial() == Material.WATER;
         }
         // replaceable plants/snow, or any transparent block (glass, leaves, ...)
         return state.getBlock().isReplaceable(world, pos) || !state.isOpaqueCube();

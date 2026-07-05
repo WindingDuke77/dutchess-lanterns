@@ -31,6 +31,11 @@ public class CreativeLanternItem extends LanternItem {
     }
 
     @Override
+    protected boolean refundOnReclaim() {
+        return false; // placements were free
+    }
+
+    @Override
     public boolean showDurabilityBar(ItemStack stack) {
         return false;
     }

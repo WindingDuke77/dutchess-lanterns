@@ -102,6 +102,17 @@ public class EnergyLanternItem extends LanternItem {
         return "tooltip.lantern.howto2_energy";
     }
 
+    @Override
+    protected void refundReclaimed(net.minecraft.entity.player.EntityPlayer player, ItemStack lantern, int count) {
+        // energy can't hold glowstone - hand the blocks back as items
+        while (count > 0) {
+            int give = Math.min(64, count);
+            net.minecraftforge.items.ItemHandlerHelper.giveItemToPlayer(player,
+                new ItemStack(net.minecraft.init.Blocks.GLOWSTONE, give));
+            count -= give;
+        }
+    }
+
     /** A stack with no Energy tag (/give, creative menu, JEI) counts as full; crafted stacks carry Energy:0. */
     public static int getEnergy(ItemStack stack) {
         if (stack.hasTagCompound() && stack.getTagCompound().hasKey(TAG_ENERGY)) {

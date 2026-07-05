@@ -33,7 +33,7 @@ public class LanternCommand extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "/lantern status | why [x y z] | scan [radius] | undo [radius]";
+        return "/lantern help | status | why [x y z] | scan [radius] | undo [radius]";
     }
 
     @Override
@@ -45,7 +45,7 @@ public class LanternCommand extends CommandBase {
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender,
                                           String[] args, BlockPos targetPos) {
         if (args.length == 1) {
-            return getListOfStringsMatchingLastWord(args, "status", "why", "scan", "undo");
+            return getListOfStringsMatchingLastWord(args, "help", "status", "why", "scan", "undo");
         }
         return new ArrayList<>();
     }
@@ -57,6 +57,9 @@ public class LanternCommand extends CommandBase {
         }
         World world = sender.getEntityWorld();
         switch (args[0].toLowerCase(Locale.ROOT)) {
+            case "help":
+                help(sender);
+                break;
             case "status":
                 status(sender);
                 break;
@@ -78,6 +81,18 @@ public class LanternCommand extends CommandBase {
 
     private static void say(ICommandSender sender, String message) {
         sender.sendMessage(new TextComponentString(message));
+    }
+
+    private static void help(ICommandSender sender) {
+        say(sender, "=== Lantern " + Lantern.VERSION + " ===");
+        say(sender, "Sneak + Right-Click (air): toggle on/off (glints while on)");
+        say(sender, "Right-Click: load fuel from inventory + carried containers");
+        say(sender, "Sneak + Right-Click ON A BLOCK: reclaim hidden lights nearby (refunds glowstone)");
+        say(sender, "Works held, on the hotbar, or worn in the Baubles charm slot");
+        say(sender, "While on: sweeps torches back to you, buries invisible painted glowstone");
+        say(sender, "on a global 6-block grid, gap-fills walls/awkward spots, lights underwater");
+        say(sender, "Variants: Energy (FE, nether star), Torch (places torches), Creative (free, visible)");
+        say(sender, "Debug: /lantern status | why | scan | undo -- config in config/lantern.cfg");
     }
 
     private static void status(ICommandSender sender) {

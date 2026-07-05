@@ -36,6 +36,15 @@ public class LanternConfig {
     @Config.Comment("After the grid pass, also light dark spots the grid missed (walls, unplaceable ground)")
     public static boolean fillGaps = true;
 
+    @Config.Comment("Also light the ground under water (ocean/lake floors)")
+    public static boolean lightUnderwater = true;
+
+    @Config.Comment("When the buffer and inventory run dry, pull fuel out of carried containers (backpacks etc.)")
+    public static boolean refillFromContainers = true;
+
+    @Config.Comment("Dimension IDs where the Lantern never acts (e.g. -1 for the Nether)")
+    public static int[] dimensionBlacklist = {};
+
     @Config.Comment("How long (in seconds) placed lights sparkle")
     @Config.RangeInt(min = 0, max = 60)
     public static int sparkleSeconds = 6;

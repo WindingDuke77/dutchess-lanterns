@@ -25,5 +25,6 @@ chat.lantern.charge=Glowstone: %d/%d
 chat.lantern.energy=Energy: %s/%s FE
 chat.lantern.torches=Torches: %d/%d
 chat.lantern.creative=Creative Lantern: unlimited, places visible Glowstone
+chat.lantern.reclaimed=Reclaimed %d hidden lights
 chat.lantern.no_fuel=Lantern is out of fuel
 chat.lantern.no_enderio=The Lantern requires EnderIO's painted glowstone and cannot work in this pack
