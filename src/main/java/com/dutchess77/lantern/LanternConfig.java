@@ -45,6 +45,10 @@ public class LanternConfig {
     @Config.Comment("Dimension IDs where the Lantern never acts (e.g. -1 for the Nether)")
     public static int[] dimensionBlacklist = {};
 
+    @Config.Comment({"Convert legacy EnderIO painted-glowstone lights into this mod's hidden lights (free) as chunks load.",
+        "Warning: hand-crafted SOLID painted glowstone is indistinguishable and gets converted too - disable if you build with it."})
+    public static boolean migrateLegacyLights = true;
+
     @Config.Comment("How long (in seconds) placed lights sparkle")
     @Config.RangeInt(min = 0, max = 60)
     public static int sparkleSeconds = 6;
