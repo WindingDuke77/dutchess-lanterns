@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 
 import com.dutchess77.lantern.LanternConfig;
+import com.dutchess77.lantern.compat.BaublesCompat;
 import com.dutchess77.lantern.compat.EnderIOPaintHelper;
 import com.dutchess77.lantern.item.CreativeLanternItem;
 import com.dutchess77.lantern.item.LanternItem;
@@ -145,7 +146,7 @@ public class LanternTickHandler {
                 return stack;
             }
         }
-        return ItemStack.EMPTY;
+        return BaublesCompat.findActiveLantern(player);
     }
 
     private static boolean isActiveLantern(ItemStack stack) {

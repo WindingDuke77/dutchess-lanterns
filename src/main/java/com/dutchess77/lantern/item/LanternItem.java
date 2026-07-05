@@ -26,7 +26,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LanternItem extends Item {
+public class LanternItem extends Item implements baubles.api.IBauble {
 
     private static final String TAG_ACTIVE = "Active";
     private static final String TAG_CHARGE = "Charge";
@@ -170,6 +170,16 @@ public class LanternItem extends Item {
 
     protected String howtoFillKey() {
         return "tooltip.lantern.howto2";
+    }
+
+    @Override
+    public baubles.api.BaubleType getBaubleType(ItemStack stack) {
+        return baubles.api.BaubleType.CHARM;
+    }
+
+    @Override
+    public boolean willAutoSync(net.minecraft.item.ItemStack stack, net.minecraft.entity.EntityLivingBase player) {
+        return true; // charge NBT changes while worn must reach the client
     }
 
     public static boolean isActive(ItemStack stack) {
