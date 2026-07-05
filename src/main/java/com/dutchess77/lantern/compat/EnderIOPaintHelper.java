@@ -34,11 +34,11 @@ public final class EnderIOPaintHelper {
     public static void init() {
         Block block = ForgeRegistries.BLOCKS.getValue(PAINTED_GLOWSTONE_SOLID);
         if (block == null || block == Blocks.AIR) {
-            Lantern.LOGGER.warn("{} not found in the block registry; the Lantern will not place lights",
-                PAINTED_GLOWSTONE_SOLID);
+            Lantern.LOGGER.info("EnderIO not present; legacy light migration/reclaim disabled");
         } else {
             paintedGlowstone = block;
-            Lantern.LOGGER.info("Lantern will place {}", PAINTED_GLOWSTONE_SOLID);
+            Lantern.LOGGER.info("Legacy EnderIO lights ({}) will be recognized for migration and reclaim",
+                PAINTED_GLOWSTONE_SOLID);
         }
     }
 
