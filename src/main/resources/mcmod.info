@@ -11,7 +11,7 @@
     "credits": "",
     "logoFile": "",
     "screenshots": [],
-    "requiredMods": ["forge", "enderio"],
-    "dependencies": ["enderio"]
+    "requiredMods": ["forge"],
+    "dependencies": ["enderio", "baubles"]
   }
 ]

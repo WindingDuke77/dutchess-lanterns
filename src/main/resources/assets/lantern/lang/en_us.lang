@@ -2,6 +2,7 @@ item.lantern.lantern.name=Lantern
 item.lantern.energy_lantern.name=Energy Lantern
 item.lantern.torch_lantern.name=Torch Lantern
 item.lantern.creative_lantern.name=Creative Lantern
+tile.lantern.hidden_light.name=Hidden Light
 
 tooltip.lantern.active=● Active
 tooltip.lantern.inactive=○ Inactive

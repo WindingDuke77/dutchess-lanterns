@@ -6,6 +6,8 @@ import java.util.Locale;
 
 import com.dutchess77.lantern.Lantern;
 import com.dutchess77.lantern.LanternConfig;
+import com.dutchess77.lantern.ModBlocks;
+import com.dutchess77.lantern.block.HiddenLightTileEntity;
 import com.dutchess77.lantern.compat.EnderIOPaintHelper;
 import com.dutchess77.lantern.handler.LanternTickHandler;
 
@@ -97,10 +99,9 @@ public class LanternCommand extends CommandBase {
 
     private static void status(ICommandSender sender) {
         say(sender, "Lantern " + Lantern.VERSION + " debug status");
-        say(sender, " EnderIO painted glowstone: "
-            + (EnderIOPaintHelper.isAvailable()
-                ? "available (" + EnderIOPaintHelper.paintedGlowstoneSolid().getRegistryName() + ")"
-                : "MISSING"));
+        say(sender, " light block: " + ModBlocks.HIDDEN_LIGHT.getRegistryName()
+            + "; legacy EnderIO painted glowstone "
+            + (EnderIOPaintHelper.isAvailable() ? "recognized" : "not present"));
         say(sender, " gridSpacing=" + LanternConfig.gridSpacing
             + " radius=" + LanternConfig.horizontalRadius
             + " vertical=" + LanternConfig.verticalRange
@@ -162,10 +163,6 @@ public class LanternCommand extends CommandBase {
     }
 
     private static void undo(ICommandSender sender, World world, int radius) {
-        if (!EnderIOPaintHelper.isAvailable()) {
-            say(sender, "EnderIO painted glowstone not available");
-            return;
-        }
         BlockPos center = sender.getPosition();
         int vertical = Math.min(radius, 16);
         int count = 0;
@@ -174,7 +171,16 @@ public class LanternCommand extends CommandBase {
             if (!world.isBlockLoaded(pos)) {
                 continue;
             }
-            if (EnderIOPaintHelper.isPaintedGlowstone(world.getBlockState(pos).getBlock())) {
+            Block block = world.getBlockState(pos).getBlock();
+            if (block == ModBlocks.HIDDEN_LIGHT) {
+                TileEntity te = world.getTileEntity(pos);
+                IBlockState mimic = te instanceof HiddenLightTileEntity
+                    ? ((HiddenLightTileEntity) te).getMimic() : null;
+                world.setBlockState(pos.toImmutable(),
+                    mimic != null ? mimic : Blocks.STONE.getDefaultState(), 3);
+                count++;
+            } else if (EnderIOPaintHelper.isPaintedGlowstone(block)) {
+                // legacy lights placed by pre-1.11 versions
                 TileEntity te = world.getTileEntity(pos);
                 IBlockState paint = EnderIOPaintHelper.getPaint(te);
                 world.setBlockState(pos.toImmutable(),
@@ -183,6 +189,6 @@ public class LanternCommand extends CommandBase {
             }
         }
         say(sender, "Reverted " + count + " hidden lights within " + radius
-            + " blocks back to their painted block (stone when unpainted).");
+            + " blocks back to the block they mimic (stone when unknown).");
     }
 }

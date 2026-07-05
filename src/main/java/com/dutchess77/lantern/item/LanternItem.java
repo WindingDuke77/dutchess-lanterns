@@ -6,6 +6,8 @@ import javax.annotation.Nullable;
 
 import com.dutchess77.lantern.Lantern;
 import com.dutchess77.lantern.LanternConfig;
+import com.dutchess77.lantern.ModBlocks;
+import com.dutchess77.lantern.block.HiddenLightTileEntity;
 import com.dutchess77.lantern.compat.EnderIOPaintHelper;
 
 import net.minecraft.block.state.IBlockState;
@@ -75,7 +77,16 @@ public class LanternItem extends Item implements baubles.api.IBauble {
             if (!world.isBlockLoaded(pos)) {
                 continue;
             }
-            if (EnderIOPaintHelper.isPaintedGlowstone(world.getBlockState(pos).getBlock())) {
+            net.minecraft.block.Block block = world.getBlockState(pos).getBlock();
+            if (block == ModBlocks.HIDDEN_LIGHT) {
+                net.minecraft.tileentity.TileEntity te = world.getTileEntity(pos);
+                IBlockState mimic = te instanceof HiddenLightTileEntity
+                    ? ((HiddenLightTileEntity) te).getMimic() : null;
+                world.setBlockState(pos.toImmutable(),
+                    mimic != null ? mimic : Blocks.STONE.getDefaultState(), 3);
+                count++;
+            } else if (EnderIOPaintHelper.isPaintedGlowstone(block)) {
+                // legacy lights placed by pre-1.11 versions
                 IBlockState paint = EnderIOPaintHelper.getPaint(world.getTileEntity(pos));
                 world.setBlockState(pos.toImmutable(),
                     paint != null ? paint : Blocks.STONE.getDefaultState(), 3);

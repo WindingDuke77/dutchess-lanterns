@@ -7,10 +7,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.WeakHashMap;
 
 import com.dutchess77.lantern.LanternConfig;
+import com.dutchess77.lantern.ModBlocks;
+import com.dutchess77.lantern.block.HiddenLightTileEntity;
 import com.dutchess77.lantern.compat.BaublesCompat;
 import com.dutchess77.lantern.compat.EnderIOPaintHelper;
 import com.dutchess77.lantern.item.CreativeLanternItem;
@@ -50,7 +51,6 @@ public class LanternTickHandler {
     private static String[] cachedTorchConfig;
     private static Set<Block> torchBlocks;
 
-    private final Set<UUID> warnedNoEnderIO = new HashSet<>();
     private final Map<EntityPlayer, Long> lastFuelWarn = new WeakHashMap<>();
     private final List<Sparkle> sparkles = new ArrayList<>();
 
@@ -125,14 +125,8 @@ public class LanternTickHandler {
             return;
         }
 
-        // creative lantern places plain visible glowstone, no EnderIO needed
+        // creative lantern places plain visible glowstone
         boolean visible = lantern.getItem() instanceof CreativeLanternItem;
-        if (!visible && !EnderIOPaintHelper.isAvailable()) {
-            if (warnedNoEnderIO.add(player.getUniqueID())) {
-                player.sendMessage(new TextComponentTranslation("chat.lantern.no_enderio"));
-            }
-            return;
-        }
 
         sweepTorches(world, player, center, r, vr);
         if (placeGrid(world, player, lantern, center, r, vr, false, visible) && LanternConfig.fillGaps) {
@@ -394,14 +388,11 @@ public class LanternTickHandler {
         if (visible) {
             world.setBlockState(target, Blocks.GLOWSTONE.getDefaultState(), 3);
         } else {
-            world.setBlockState(target, EnderIOPaintHelper.paintedGlowstoneSolid().getDefaultState(), 3);
+            world.setBlockState(target, ModBlocks.HIDDEN_LIGHT.getDefaultState(), 3);
             TileEntity te = world.getTileEntity(target);
-            EnderIOPaintHelper.paint(te, original);
-            if (te != null) {
-                te.markDirty();
+            if (te instanceof HiddenLightTileEntity) {
+                ((HiddenLightTileEntity) te).setMimic(original);
             }
-            IBlockState placed = world.getBlockState(target);
-            world.notifyBlockUpdate(target, placed, placed, 3);
         }
         if (world instanceof WorldServer && LanternConfig.sparkleSeconds > 0) {
             sparkles.add(new Sparkle((WorldServer) world, sparkleAt,
@@ -443,7 +434,9 @@ public class LanternTickHandler {
     }
 
     public static boolean isLamp(Block block) {
-        return EnderIOPaintHelper.isPaintedGlowstone(block) || block == Blocks.GLOWSTONE;
+        return block == ModBlocks.HIDDEN_LIGHT
+            || EnderIOPaintHelper.isPaintedGlowstone(block) // legacy lights from pre-1.11 versions
+            || block == Blocks.GLOWSTONE;
     }
 
     private static boolean isOpen(IBlockState state, World world, BlockPos pos) {
