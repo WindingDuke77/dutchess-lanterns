@@ -15,6 +15,7 @@ import com.dutchess77.lantern.block.HiddenLightTileEntity;
 import com.dutchess77.lantern.compat.BaublesCompat;
 import com.dutchess77.lantern.compat.EnderIOPaintHelper;
 import com.dutchess77.lantern.item.CreativeLanternItem;
+import com.dutchess77.lantern.item.EnergyLanternItem;
 import com.dutchess77.lantern.item.LanternItem;
 import com.dutchess77.lantern.item.TorchLanternItem;
 
@@ -391,7 +392,8 @@ public class LanternTickHandler {
             world.setBlockState(target, ModBlocks.HIDDEN_LIGHT.getDefaultState(), 3);
             TileEntity te = world.getTileEntity(target);
             if (te instanceof HiddenLightTileEntity) {
-                ((HiddenLightTileEntity) te).setMimic(original);
+                ((HiddenLightTileEntity) te).setMimic(original,
+                    lantern.getItem() instanceof EnergyLanternItem);
             }
         }
         if (world instanceof WorldServer && LanternConfig.sparkleSeconds > 0) {

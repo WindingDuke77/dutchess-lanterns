@@ -73,6 +73,7 @@ public class LanternItem extends Item implements baubles.api.IBauble {
         int rh = LanternConfig.horizontalRadius;
         int rv = LanternConfig.verticalRange;
         int count = 0;
+        int refundable = 0; // FE-paid lights refund no glowstone
         for (BlockPos pos : BlockPos.getAllInBoxMutable(center.add(-rh, -rv, -rh), center.add(rh, rv, rh))) {
             if (!world.isBlockLoaded(pos)) {
                 continue;
@@ -80,21 +81,29 @@ public class LanternItem extends Item implements baubles.api.IBauble {
             net.minecraft.block.Block block = world.getBlockState(pos).getBlock();
             if (block == ModBlocks.HIDDEN_LIGHT) {
                 net.minecraft.tileentity.TileEntity te = world.getTileEntity(pos);
-                IBlockState mimic = te instanceof HiddenLightTileEntity
-                    ? ((HiddenLightTileEntity) te).getMimic() : null;
+                IBlockState mimic = null;
+                boolean fromEnergy = false;
+                if (te instanceof HiddenLightTileEntity) {
+                    mimic = ((HiddenLightTileEntity) te).getMimic();
+                    fromEnergy = ((HiddenLightTileEntity) te).isFromEnergy();
+                }
                 world.setBlockState(pos.toImmutable(),
                     mimic != null ? mimic : Blocks.STONE.getDefaultState(), 3);
                 count++;
+                if (!fromEnergy) {
+                    refundable++;
+                }
             } else if (EnderIOPaintHelper.isPaintedGlowstone(block)) {
                 // legacy lights placed by pre-1.11 versions
                 IBlockState paint = EnderIOPaintHelper.getPaint(world.getTileEntity(pos));
                 world.setBlockState(pos.toImmutable(),
                     paint != null ? paint : Blocks.STONE.getDefaultState(), 3);
                 count++;
+                refundable++;
             }
         }
-        if (count > 0 && refundOnReclaim()) {
-            refundReclaimed(player, lantern, count);
+        if (refundable > 0 && refundOnReclaim()) {
+            refundReclaimed(player, lantern, refundable);
         }
         return count;
     }

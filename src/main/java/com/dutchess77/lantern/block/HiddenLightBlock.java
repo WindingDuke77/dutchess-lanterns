@@ -1,7 +1,5 @@
 package com.dutchess77.lantern.block;
 
-import java.util.Random;
-
 import com.dutchess77.lantern.Lantern;
 
 import net.minecraft.block.Block;
@@ -16,6 +14,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
@@ -89,9 +88,32 @@ public class HiddenLightBlock extends Block {
         return state;
     }
 
+    /** Drops the glowstone block it cost - unless an Energy Lantern paid FE for it. */
     @Override
-    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-        return Item.getItemFromBlock(Blocks.GLOWSTONE);
+    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state,
+                         int fortune) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof HiddenLightTileEntity && ((HiddenLightTileEntity) te).isFromEnergy()) {
+            return;
+        }
+        drops.add(new ItemStack(Blocks.GLOWSTONE));
+    }
+
+    /** Delay removal on harvest so getDrops can still read the tile entity. */
+    @Override
+    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player,
+                                   boolean willHarvest) {
+        if (willHarvest) {
+            return true;
+        }
+        return super.removedByPlayer(state, world, pos, player, willHarvest);
+    }
+
+    @Override
+    public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state,
+                             TileEntity te, ItemStack stack) {
+        super.harvestBlock(world, player, pos, state, te, stack);
+        world.setBlockToAir(pos);
     }
 
     @Override
