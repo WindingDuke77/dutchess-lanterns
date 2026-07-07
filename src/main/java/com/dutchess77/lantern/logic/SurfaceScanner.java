@@ -75,7 +75,8 @@ public final class SurfaceScanner {
         if (block.hasTileEntity(state)) {
             return false;
         }
-        if (state.getBlockHardness(world, pos) < 0.0F) { // bedrock and friends
+        float hardness = state.getBlockHardness(world, pos);
+        if (hardness < 0.0F || hardness >= 10.0F) { // bedrock, obsidian, reinforced/functional blocks
             return false;
         }
         if (!state.isFullCube()) {

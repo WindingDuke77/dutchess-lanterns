@@ -58,7 +58,7 @@ public class LanternConfig {
 
     @Config.Comment("Forge Energy capacity of the Energy Lantern")
     @Config.RangeInt(min = 1000, max = 100000000)
-    public static int energyCapacity = 200000;
+    public static int energyCapacity = 1000000;
 
     @Config.Comment("Forge Energy cost per placed light for the Energy Lantern")
     @Config.RangeInt(min = 0, max = 1000000)
@@ -68,7 +68,7 @@ public class LanternConfig {
     public static String[] torchWhitelist = {"minecraft:torch"};
 
     @Config.Comment("Registry names of blocks the Lantern must never replace")
-    public static String[] groundBlacklist = {};
+    public static String[] groundBlacklist = {"minecraft:obsidian"};
 
     @Mod.EventBusSubscriber(modid = Lantern.MODID)
     public static class SyncHandler {

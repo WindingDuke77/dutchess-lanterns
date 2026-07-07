@@ -27,7 +27,21 @@ import net.minecraft.world.World;
  */
 public class LightPlacer {
 
+    /** How long a spot that could not actually be lit is left alone (ticks). */
+    private static final long UNFIXABLE_COOLDOWN = 600;
+
     private final Map<EntityPlayer, Long> lastFuelWarn = new WeakHashMap<>();
+
+    /**
+     * Spots the gap-filler placed for (or gave up on) that stayed dark anyway -
+     * e.g. under slabs where light cannot reach. Without this, every pass
+     * would burn another block trying to fix the same unfixable spot.
+     */
+    private final Map<Long, Long> unfixableSpots = new java.util.HashMap<>();
+
+    private static long spotKey(World world, BlockPos pos) {
+        return pos.toLong() ^ ((long) world.provider.getDimension() << 58);
+    }
 
     /** Runs a full area pass: grid first, then gap-fill (if enabled and fuel remains). */
     public void processArea(World world, EntityPlayer player, ItemStack lantern, BlockPos center,
@@ -69,11 +83,18 @@ public class LightPlacer {
      */
     private void fillGapsPass(World world, EntityPlayer player, ItemStack lantern, BlockPos center,
                               int r, int vr, boolean torchMode, boolean visible) {
+        long now = world.getTotalWorldTime();
+        cleanupUnfixable(now);
         for (int x = center.getX() - r; x <= center.getX() + r; x++) {
             for (int z = center.getZ() - r; z <= center.getZ() + r; z++) {
                 BlockPos standable = SurfaceScanner.findStandableSurface(world, x, z, center.getY(), vr);
                 if (standable == null
                     || world.getLightFor(EnumSkyBlock.BLOCK, standable.up()) > LanternConfig.lightThreshold) {
+                    continue;
+                }
+                long key = spotKey(world, standable);
+                Long retryAt = unfixableSpots.get(key);
+                if (retryAt != null && now < retryAt) {
                     continue;
                 }
                 PlaceResult result = torchMode
@@ -83,7 +104,18 @@ public class LightPlacer {
                     warnNoFuel(world, player);
                     return;
                 }
+                // still dark after placing (or nothing placeable)? leave it alone for a while
+                if (result == PlaceResult.SKIP
+                    || world.getLightFor(EnumSkyBlock.BLOCK, standable.up()) <= LanternConfig.lightThreshold) {
+                    unfixableSpots.put(key, now + UNFIXABLE_COOLDOWN);
+                }
             }
+        }
+    }
+
+    private void cleanupUnfixable(long now) {
+        if (unfixableSpots.size() > 8192) {
+            unfixableSpots.values().removeIf(retryAt -> now >= retryAt);
         }
     }
 

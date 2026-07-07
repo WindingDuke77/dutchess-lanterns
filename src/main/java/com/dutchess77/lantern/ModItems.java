@@ -21,6 +21,10 @@ public class ModItems {
     public static final EnergyLanternItem ENERGY_LANTERN = new EnergyLanternItem();
     public static final TorchLanternItem TORCH_LANTERN = new TorchLanternItem();
     public static final CreativeLanternItem CREATIVE_LANTERN = new CreativeLanternItem();
+    public static final Item GLOW_CAPACITOR = new Item()
+        .setRegistryName(Lantern.MODID, "glow_capacitor")
+        .setTranslationKey(Lantern.MODID + ".glow_capacitor")
+        .setCreativeTab(net.minecraft.creativetab.CreativeTabs.MATERIALS);
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
@@ -28,6 +32,7 @@ public class ModItems {
         event.getRegistry().register(ENERGY_LANTERN);
         event.getRegistry().register(TORCH_LANTERN);
         event.getRegistry().register(CREATIVE_LANTERN);
+        event.getRegistry().register(GLOW_CAPACITOR);
     }
 
     @Mod.EventBusSubscriber(value = Side.CLIENT, modid = Lantern.MODID)
@@ -42,6 +47,8 @@ public class ModItems {
                 new ModelResourceLocation(TORCH_LANTERN.getRegistryName(), "inventory"));
             ModelLoader.setCustomModelResourceLocation(CREATIVE_LANTERN, 0,
                 new ModelResourceLocation(CREATIVE_LANTERN.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(GLOW_CAPACITOR, 0,
+                new ModelResourceLocation(GLOW_CAPACITOR.getRegistryName(), "inventory"));
         }
     }
 }
