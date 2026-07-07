@@ -69,8 +69,9 @@ public class ModItems {
                 new ModelResourceLocation(GLOW_CAPACITOR.getRegistryName(), "inventory"));
             for (Item upgrade : new Item[] { RANGE_UPGRADE, EFFICIENCY_UPGRADE, CAPACITY_UPGRADE }) {
                 for (int meta = 0; meta < com.dutchess77.lantern.item.UpgradeItem.MAX_TIER; meta++) {
+                    // one model per tier: _t1.._t4 with tier-colored frame and pips
                     ModelLoader.setCustomModelResourceLocation(upgrade, meta,
-                        new ModelResourceLocation(upgrade.getRegistryName(), "inventory"));
+                        new ModelResourceLocation(upgrade.getRegistryName() + "_t" + (meta + 1), "inventory"));
                 }
             }
         }
