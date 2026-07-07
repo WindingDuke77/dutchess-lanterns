@@ -24,6 +24,10 @@ gui.lantern.baubles=Baubles: Charm slot ready
 gui.lantern.insert=Insert a lantern
 gui.lantern.sockets=Sockets: %d/%d
 tooltip.lantern.sockets=Sockets: %d/%d
+tooltip.lantern.stat_range=Range: %d blocks (%dx%d area)
+tooltip.lantern.stat_efficiency=Free placements: %d%%
+tooltip.lantern.stat_interval=Acts every %d ticks on a %dx%d grid
+tooltip.lantern.stat_max= (max)
 
 tooltip.lantern.active=● Active
 tooltip.lantern.inactive=○ Inactive

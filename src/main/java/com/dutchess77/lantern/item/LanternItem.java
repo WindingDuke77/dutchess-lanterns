@@ -303,6 +303,23 @@ public class LanternItem extends Item implements baubles.api.IBauble {
             tooltip.add(TextFormatting.LIGHT_PURPLE + "  " + I18n.format(
                 "item.lantern." + upgrade.type.key + "_t" + upgrade.tier + ".name"));
         }
+        // raw effective stats
+        int radius = LanternUpgrades.effectiveRadius(stack, LanternConfig.horizontalRadius);
+        String radiusLine = I18n.format("tooltip.lantern.stat_range", radius, radius * 2 + 1, radius * 2 + 1);
+        if (radius >= 32) {
+            radiusLine += I18n.format("tooltip.lantern.stat_max");
+        }
+        tooltip.add(TextFormatting.AQUA + radiusLine);
+        float freeChance = LanternUpgrades.freeChance(stack);
+        if (freeChance > 0.0F) {
+            String efficiencyLine = I18n.format("tooltip.lantern.stat_efficiency", Math.round(freeChance * 100.0F));
+            if (freeChance >= 0.8F) {
+                efficiencyLine += I18n.format("tooltip.lantern.stat_max");
+            }
+            tooltip.add(TextFormatting.AQUA + efficiencyLine);
+        }
+        tooltip.add(TextFormatting.AQUA + I18n.format("tooltip.lantern.stat_interval",
+            LanternConfig.tickInterval, LanternConfig.gridSpacing, LanternConfig.gridSpacing));
         tooltip.add("");
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto1"));
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format(howtoFillKey()));
