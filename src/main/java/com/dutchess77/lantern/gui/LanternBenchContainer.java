@@ -10,28 +10,52 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.SlotItemHandler;
 
 public class LanternBenchContainer extends Container {
+
+    /** N, W, E, S around the central lantern slot at (80, 35). */
+    private static final int[][] SOCKET_POSITIONS = { {80, 13}, {58, 35}, {102, 35}, {80, 57} };
 
     private final LanternBenchTileEntity bench;
 
     public LanternBenchContainer(InventoryPlayer playerInventory, LanternBenchTileEntity bench) {
         this.bench = bench;
 
-        addSlotToContainer(new SlotItemHandler(bench.getInventory(), LanternBenchTileEntity.SLOT_LANTERN, 44, 35) {
+        addSlotToContainer(new SlotItemHandler(bench.getInventory(), LanternBenchTileEntity.SLOT_LANTERN, 80, 35) {
             @Override
             public boolean isItemValid(ItemStack stack) {
-                return stack.getItem() instanceof LanternItem;
+                // no swapping a lantern in while sockets are occupied - take the old one out first
+                return stack.getItem() instanceof LanternItem && bench.socketsEmpty();
             }
-        });
-        addSlotToContainer(new SlotItemHandler(bench.getInventory(), LanternBenchTileEntity.SLOT_INPUT, 98, 35) {
+
             @Override
-            public boolean isItemValid(ItemStack stack) {
-                return stack.getItem() instanceof UpgradeItem;
+            public ItemStack onTake(EntityPlayer player, ItemStack stack) {
+                if (bench.getWorld() != null && !bench.getWorld().isRemote) {
+                    bench.packInto(stack);
+                }
+                return super.onTake(player, stack);
             }
         });
+
+        for (int i = 0; i < LanternBenchTileEntity.SOCKET_COUNT; i++) {
+            final int socketIndex = i;
+            addSlotToContainer(new SlotItemHandler(bench.getInventory(),
+                LanternBenchTileEntity.SOCKET_FIRST + i, SOCKET_POSITIONS[i][0], SOCKET_POSITIONS[i][1]) {
+                @Override
+                public boolean isItemValid(ItemStack stack) {
+                    ItemStack lantern = bench.getInventory().getStackInSlot(LanternBenchTileEntity.SLOT_LANTERN);
+                    return stack.getItem() instanceof UpgradeItem
+                        && lantern.getItem() instanceof LanternItem
+                        && socketIndex < LanternUpgrades.socketCount(lantern);
+                }
+
+                @Override
+                public int getSlotStackLimit() {
+                    return 1;
+                }
+            });
+        }
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
@@ -49,23 +73,6 @@ public class LanternBenchContainer extends Container {
             && player.getDistanceSq(bench.getPos().add(0.5, 0.5, 0.5)) <= 64.0D;
     }
 
-    /** Button 0 = pop all upgrades off the lantern back to the player. */
-    @Override
-    public boolean enchantItem(EntityPlayer player, int id) {
-        if (id != 0 || player.world.isRemote) {
-            return false;
-        }
-        ItemStack lantern = bench.getInventory().getStackInSlot(LanternBenchTileEntity.SLOT_LANTERN);
-        if (lantern.isEmpty() || !(lantern.getItem() instanceof LanternItem)) {
-            return false;
-        }
-        for (ItemStack upgrade : LanternUpgrades.removeAll(lantern)) {
-            ItemHandlerHelper.giveItemToPlayer(player, upgrade);
-        }
-        bench.getInventory().setStackInSlot(LanternBenchTileEntity.SLOT_LANTERN, lantern);
-        return true;
-    }
-
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int index) {
         ItemStack moved = ItemStack.EMPTY;
@@ -75,9 +82,14 @@ public class LanternBenchContainer extends Container {
         }
         ItemStack current = slot.getStack();
         moved = current.copy();
-        if (index < 2) {
-            // bench -> player
-            if (!mergeItemStack(current, 2, inventorySlots.size(), true)) {
+        int benchSlots = 1 + LanternBenchTileEntity.SOCKET_COUNT;
+        if (index < benchSlots) {
+            if (index == 0 && !bench.getWorld().isRemote) {
+                // shift-clicking the lantern out: pack sockets into it first
+                bench.packInto(current);
+                moved = current.copy();
+            }
+            if (!mergeItemStack(current, benchSlots, inventorySlots.size(), true)) {
                 return ItemStack.EMPTY;
             }
         } else if (current.getItem() instanceof LanternItem) {
@@ -85,7 +97,7 @@ public class LanternBenchContainer extends Container {
                 return ItemStack.EMPTY;
             }
         } else if (current.getItem() instanceof UpgradeItem) {
-            if (!mergeItemStack(current, 1, 2, false)) {
+            if (!mergeItemStack(current, 1, benchSlots, false)) {
                 return ItemStack.EMPTY;
             }
         } else {

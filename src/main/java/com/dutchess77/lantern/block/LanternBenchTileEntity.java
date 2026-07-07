@@ -1,7 +1,5 @@
 package com.dutchess77.lantern.block;
 
-import javax.annotation.Nullable;
-
 import com.dutchess77.lantern.item.LanternItem;
 import com.dutchess77.lantern.item.LanternUpgrades;
 import com.dutchess77.lantern.item.UpgradeItem;
@@ -9,26 +7,34 @@ import com.dutchess77.lantern.item.UpgradeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.ItemStackHandler;
 
 /**
- * Slot 0: lantern. Slot 1: upgrade input - anything placed there installs
- * onto the lantern immediately (server side) while sockets are free.
+ * Slot 0: lantern. Slots 1-4: sockets. While a lantern is docked its
+ * upgrades physically sit in the socket slots; taking the lantern out packs
+ * the sockets back into its NBT. No item-handler capability is exposed, so
+ * hoppers cannot bypass the pack/unpack.
  */
 public class LanternBenchTileEntity extends TileEntity {
 
     public static final int SLOT_LANTERN = 0;
-    public static final int SLOT_INPUT = 1;
+    public static final int SOCKET_FIRST = 1;
+    public static final int SOCKET_COUNT = 4;
 
-    private final ItemStackHandler inventory = new ItemStackHandler(2) {
+    private boolean transferring;
+
+    private final ItemStackHandler inventory = new ItemStackHandler(1 + SOCKET_COUNT) {
+        @Override
+        public int getSlotLimit(int slot) {
+            return 1;
+        }
+
         @Override
         protected void onContentsChanged(int slot) {
             markDirty();
-            if (world != null && !world.isRemote) {
-                tryInstall();
+            if (!transferring && slot == SLOT_LANTERN && world != null && !world.isRemote) {
+                unpackLantern();
             }
         }
     };
@@ -37,26 +43,62 @@ public class LanternBenchTileEntity extends TileEntity {
         return inventory;
     }
 
-    /** Moves upgrades from the input slot into the lantern's free sockets. */
-    public void tryInstall() {
+    public boolean socketsEmpty() {
+        for (int i = SOCKET_FIRST; i < SOCKET_FIRST + SOCKET_COUNT; i++) {
+            if (!inventory.getStackInSlot(i).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Freshly docked lantern: its installed upgrades pop out into the sockets. */
+    private void unpackLantern() {
         ItemStack lantern = inventory.getStackInSlot(SLOT_LANTERN);
-        ItemStack input = inventory.getStackInSlot(SLOT_INPUT);
-        if (lantern.isEmpty() || input.isEmpty()
-            || !(lantern.getItem() instanceof LanternItem)
-            || !(input.getItem() instanceof UpgradeItem)) {
+        if (lantern.isEmpty() || !(lantern.getItem() instanceof LanternItem)) {
             return;
         }
-        UpgradeItem upgrade = (UpgradeItem) input.getItem();
-        boolean changed = false;
-        while (!input.isEmpty()
-            && LanternUpgrades.install(lantern, upgrade.type, UpgradeItem.tierOf(input))) {
-            input.shrink(1);
-            changed = true;
-        }
-        if (changed) {
+        transferring = true;
+        try {
+            NonNullList<ItemStack> upgrades = LanternUpgrades.removeAll(lantern);
+            int slot = SOCKET_FIRST;
+            for (ItemStack upgrade : upgrades) {
+                while (slot < SOCKET_FIRST + SOCKET_COUNT && !inventory.getStackInSlot(slot).isEmpty()) {
+                    slot++;
+                }
+                if (slot < SOCKET_FIRST + SOCKET_COUNT) {
+                    inventory.setStackInSlot(slot++, upgrade);
+                } else if (upgrade.getItem() instanceof UpgradeItem) {
+                    // no free socket - keep it on the item
+                    LanternUpgrades.install(lantern,
+                        ((UpgradeItem) upgrade.getItem()).type, UpgradeItem.tierOf(upgrade));
+                }
+            }
             inventory.setStackInSlot(SLOT_LANTERN, lantern);
-            inventory.setStackInSlot(SLOT_INPUT, input);
+        } finally {
+            transferring = false;
         }
+    }
+
+    /** Socket contents install onto the given lantern; installed sockets clear. */
+    public void packInto(ItemStack lantern) {
+        if (lantern.isEmpty() || !(lantern.getItem() instanceof LanternItem)) {
+            return;
+        }
+        transferring = true;
+        try {
+            for (int i = SOCKET_FIRST; i < SOCKET_FIRST + SOCKET_COUNT; i++) {
+                ItemStack socket = inventory.getStackInSlot(i);
+                if (!socket.isEmpty() && socket.getItem() instanceof UpgradeItem
+                    && LanternUpgrades.install(lantern,
+                        ((UpgradeItem) socket.getItem()).type, UpgradeItem.tierOf(socket))) {
+                    inventory.setStackInSlot(i, ItemStack.EMPTY);
+                }
+            }
+        } finally {
+            transferring = false;
+        }
+        markDirty();
     }
 
     @Override
@@ -70,19 +112,5 @@ public class LanternBenchTileEntity extends TileEntity {
         super.writeToNBT(compound);
         compound.setTag("Inventory", inventory.serializeNBT());
         return compound;
-    }
-
-    @Override
-    public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
-        return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(capability, facing);
-    }
-
-    @Override
-    @Nullable
-    public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(inventory);
-        }
-        return super.getCapability(capability, facing);
     }
 }

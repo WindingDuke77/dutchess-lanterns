@@ -20,7 +20,7 @@ item.lantern.capacity_upgrade_t3.name=Capacity Upgrade III
 item.lantern.capacity_upgrade_t4.name=Capacity Upgrade IV
 
 gui.lantern.bench=Lantern Bench
-gui.lantern.clear=Clear
+gui.lantern.baubles=Baubles: Charm slot ready
 gui.lantern.insert=Insert a lantern
 gui.lantern.sockets=Sockets: %d/%d
 tooltip.lantern.sockets=Sockets: %d/%d
@@ -40,6 +40,7 @@ tooltip.lantern.howto2=Right-Click to load Glowstone blocks
 tooltip.lantern.howto2_energy=Charge in any FE item charger
 tooltip.lantern.howto2_torch=Right-Click to load Torches
 tooltip.lantern.howto2_creative=Places visible Glowstone, costs nothing
+tooltip.lantern.baubles=Wearable in the Baubles Charm slot
 
 chat.lantern.on=Lantern activated
 chat.lantern.off=Lantern deactivated

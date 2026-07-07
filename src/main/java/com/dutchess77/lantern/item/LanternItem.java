@@ -306,6 +306,10 @@ public class LanternItem extends Item implements baubles.api.IBauble {
         tooltip.add("");
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto1"));
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format(howtoFillKey()));
+        if (net.minecraftforge.fml.common.Loader.isModLoaded("baubles")) {
+            tooltip.add(TextFormatting.DARK_PURPLE.toString() + TextFormatting.ITALIC
+                + I18n.format("tooltip.lantern.baubles"));
+        }
     }
 
     @SideOnly(Side.CLIENT)

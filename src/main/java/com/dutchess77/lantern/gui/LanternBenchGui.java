@@ -1,18 +1,17 @@
 package com.dutchess77.lantern.gui;
 
-import java.io.IOException;
-
 import com.dutchess77.lantern.Lantern;
 import com.dutchess77.lantern.block.LanternBenchTileEntity;
 import com.dutchess77.lantern.item.LanternItem;
 import com.dutchess77.lantern.item.LanternUpgrades;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -22,6 +21,8 @@ public class LanternBenchGui extends GuiContainer {
     private static final ResourceLocation TEXTURE =
         new ResourceLocation(Lantern.MODID, "textures/gui/lantern_bench.png");
 
+    private static final boolean BAUBLES = Loader.isModLoaded("baubles");
+
     private final LanternBenchTileEntity bench;
 
     public LanternBenchGui(InventoryPlayer playerInventory, LanternBenchTileEntity bench) {
@@ -29,20 +30,6 @@ public class LanternBenchGui extends GuiContainer {
         this.bench = bench;
         this.xSize = 176;
         this.ySize = 166;
-    }
-
-    @Override
-    public void initGui() {
-        super.initGui();
-        buttonList.add(new GuiButton(0, guiLeft + 120, guiTop + 30, 48, 20,
-            I18n.format("gui.lantern.clear")));
-    }
-
-    @Override
-    protected void actionPerformed(GuiButton button) throws IOException {
-        if (button.id == 0) {
-            mc.playerController.sendEnchantPacket(inventorySlots.windowId, 0);
-        }
     }
 
     @Override
@@ -55,13 +42,27 @@ public class LanternBenchGui extends GuiContainer {
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         fontRenderer.drawString(I18n.format("gui.lantern.bench"), 8, 6, 0x404040);
+        if (BAUBLES) {
+            String baubles = TextFormatting.DARK_PURPLE + I18n.format("gui.lantern.baubles");
+            fontRenderer.drawString(baubles, xSize - 8 - fontRenderer.getStringWidth(baubles), 6, 0x404040);
+        }
         ItemStack lantern = bench.getInventory().getStackInSlot(LanternBenchTileEntity.SLOT_LANTERN);
-        String sockets = lantern.getItem() instanceof LanternItem
+        String status = lantern.getItem() instanceof LanternItem
             ? I18n.format("gui.lantern.sockets",
-                LanternUpgrades.list(lantern).size(), LanternUpgrades.socketCount(lantern))
+                LanternUpgrades.list(lantern).size() + occupiedSockets(), LanternUpgrades.socketCount(lantern))
             : I18n.format("gui.lantern.insert");
-        fontRenderer.drawString(sockets, 8, 60, 0x404040);
-        fontRenderer.drawString(I18n.format("container.inventory"), 8, ySize - 94, 0x404040);
+        fontRenderer.drawString(status, 8, 72, 0x404040);
+    }
+
+    private int occupiedSockets() {
+        int occupied = 0;
+        for (int i = LanternBenchTileEntity.SOCKET_FIRST;
+             i < LanternBenchTileEntity.SOCKET_FIRST + LanternBenchTileEntity.SOCKET_COUNT; i++) {
+            if (!bench.getInventory().getStackInSlot(i).isEmpty()) {
+                occupied++;
+            }
+        }
+        return occupied;
     }
 
     @Override

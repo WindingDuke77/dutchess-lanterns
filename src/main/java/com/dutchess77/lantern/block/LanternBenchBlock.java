@@ -13,8 +13,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
 
 /** Workstation for socketing upgrades into lanterns. */
 public class LanternBenchBlock extends Block {
@@ -26,6 +24,7 @@ public class LanternBenchBlock extends Block {
         setCreativeTab(CreativeTabs.TOOLS);
         setHardness(2.0F);
         setSoundType(SoundType.WOOD);
+        setLightLevel(0.4F); // soft workstation glow
     }
 
     @Override
@@ -50,13 +49,13 @@ public class LanternBenchBlock extends Block {
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
         TileEntity te = world.getTileEntity(pos);
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
-            IItemHandler inventory = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-            if (inventory != null) {
-                for (int i = 0; i < inventory.getSlots(); i++) {
-                    net.minecraft.inventory.InventoryHelper.spawnItemStack(world,
-                        pos.getX(), pos.getY(), pos.getZ(), inventory.getStackInSlot(i));
-                }
+        if (te instanceof LanternBenchTileEntity) {
+            LanternBenchTileEntity bench = (LanternBenchTileEntity) te;
+            // socketed upgrades ride along inside the lantern
+            bench.packInto(bench.getInventory().getStackInSlot(LanternBenchTileEntity.SLOT_LANTERN));
+            for (int i = 0; i < bench.getInventory().getSlots(); i++) {
+                net.minecraft.inventory.InventoryHelper.spawnItemStack(world,
+                    pos.getX(), pos.getY(), pos.getZ(), bench.getInventory().getStackInSlot(i));
             }
         }
         super.breakBlock(world, pos, state);
