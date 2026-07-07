@@ -9,7 +9,7 @@ import com.dutchess77.lantern.LanternConfig;
 import com.dutchess77.lantern.ModBlocks;
 import com.dutchess77.lantern.block.HiddenLightTileEntity;
 import com.dutchess77.lantern.compat.EnderIOPaintHelper;
-import com.dutchess77.lantern.handler.LanternTickHandler;
+import com.dutchess77.lantern.logic.SurfaceScanner;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -122,17 +122,17 @@ public class LanternCommand extends CommandBase {
             + " lightValue=" + state.getLightValue(world, pos)
             + " tileEntity=" + block.hasTileEntity(state)
             + " hardness=" + state.getBlockHardness(world, pos));
-        say(sender, " ore=" + LanternTickHandler.isOre(state)
-            + " blacklisted=" + LanternTickHandler.isBlacklisted(block)
-            + " existingLamp=" + LanternTickHandler.isLamp(block));
+        say(sender, " ore=" + SurfaceScanner.isOre(state)
+            + " blacklisted=" + SurfaceScanner.isBlacklisted(block)
+            + " existingLamp=" + SurfaceScanner.isLamp(block));
         say(sender, " -> replaceable by lantern: "
-            + (LanternTickHandler.isValidGround(state, world, pos) ? "YES" : "NO"));
+            + (SurfaceScanner.isValidGround(state, world, pos) ? "YES" : "NO"));
         BlockPos above = pos.up();
         say(sender, " light above: block=" + world.getLightFor(EnumSkyBlock.BLOCK, above)
             + " sky=" + world.getLightFor(EnumSkyBlock.SKY, above)
             + " -> " + (world.getLightFor(EnumSkyBlock.BLOCK, above) <= LanternConfig.lightThreshold
                 ? "DARK (lantern would act)" : "lit (lantern would skip)"));
-        BlockPos standable = LanternTickHandler.findStandableSurface(world,
+        BlockPos standable = SurfaceScanner.findStandableSurface(world,
             pos.getX(), pos.getZ(), pos.getY(), LanternConfig.verticalRange);
         say(sender, " standable surface in this column: "
             + (standable == null ? "none" : standable.getX() + " " + standable.getY() + " " + standable.getZ()));
@@ -144,7 +144,7 @@ public class LanternCommand extends CommandBase {
         List<BlockPos> dark = new ArrayList<>();
         for (int x = center.getX() - radius; x <= center.getX() + radius; x++) {
             for (int z = center.getZ() - radius; z <= center.getZ() + radius; z++) {
-                BlockPos standable = LanternTickHandler.findStandableSurface(world, x, z, center.getY(), vr);
+                BlockPos standable = SurfaceScanner.findStandableSurface(world, x, z, center.getY(), vr);
                 if (standable != null
                     && world.getLightFor(EnumSkyBlock.BLOCK, standable.up()) <= LanternConfig.lightThreshold) {
                     dark.add(standable.up());
