@@ -1,0 +1,6 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [ " X ", "XGX", " X " ],
+  "key": { "X": { "item": "minecraft:chest" }, "G": { "item": "minecraft:glowstone" } },
+  "result": { "item": "lantern:capacity_upgrade", "data": 0 }
+}

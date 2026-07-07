@@ -27,7 +27,12 @@ public class Lantern {
 
     public static final String MODID = "lantern";
     public static final String NAME = "Dutchess Lanterns";
-    public static final String VERSION = "2.3.0";
+    public static final String VERSION = "3.0.0";
+
+    public static final int GUI_BENCH = 0;
+
+    @Mod.Instance(MODID)
+    public static Lantern instance;
 
     public static Logger LOGGER;
 
@@ -42,6 +47,8 @@ public class Lantern {
         MinecraftForge.EVENT_BUS.register(new LanternTickHandler());
         MinecraftForge.EVENT_BUS.register(new SparkleManager());
         MinecraftForge.EVENT_BUS.register(new LegacyMigrationHandler());
+        net.minecraftforge.fml.common.network.NetworkRegistry.INSTANCE.registerGuiHandler(
+            this, new com.dutchess77.lantern.gui.LanternGuiHandler());
     }
 
     @Mod.EventHandler

@@ -1,0 +1,6 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [ " X ", "XGX", " X " ],
+  "key": { "X": { "item": "minecraft:ender_pearl" }, "G": { "item": "minecraft:glowstone" } },
+  "result": { "item": "lantern:range_upgrade", "data": 0 }
+}

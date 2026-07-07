@@ -1,0 +1,8 @@
+{
+  "type": "forge:ore_shapeless",
+  "ingredients": [
+    { "item": "lantern:efficiency_upgrade", "data": 1 },
+    { "item": "minecraft:diamond" }, { "item": "minecraft:diamond" }, { "item": "minecraft:diamond" }, { "item": "minecraft:diamond" }
+  ],
+  "result": { "item": "lantern:efficiency_upgrade", "data": 2 }
+}

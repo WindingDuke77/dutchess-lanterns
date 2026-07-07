@@ -26,11 +26,16 @@ import net.minecraftforge.fml.relauncher.Side;
 public class ModBlocks {
 
     public static final HiddenLightBlock HIDDEN_LIGHT = new HiddenLightBlock();
+    public static final com.dutchess77.lantern.block.LanternBenchBlock LANTERN_BENCH =
+        new com.dutchess77.lantern.block.LanternBenchBlock();
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().register(HIDDEN_LIGHT);
+        event.getRegistry().register(LANTERN_BENCH);
         GameRegistry.registerTileEntity(HiddenLightTileEntity.class, Lantern.MODID + ":hidden_light");
+        GameRegistry.registerTileEntity(com.dutchess77.lantern.block.LanternBenchTileEntity.class,
+            Lantern.MODID + ":lantern_bench");
     }
 
     @SubscribeEvent
@@ -38,6 +43,8 @@ public class ModBlocks {
         // own item form so pick-block/Waila say "Hidden Light (Lantern)", not vanilla glowstone
         event.getRegistry().register(
             new ItemBlock(HIDDEN_LIGHT).setRegistryName(HIDDEN_LIGHT.getRegistryName()));
+        event.getRegistry().register(
+            new ItemBlock(LANTERN_BENCH).setRegistryName(LANTERN_BENCH.getRegistryName()));
     }
 
     @Mod.EventBusSubscriber(value = Side.CLIENT, modid = Lantern.MODID)
@@ -47,6 +54,8 @@ public class ModBlocks {
             Item item = Item.getItemFromBlock(HIDDEN_LIGHT);
             ModelLoader.setCustomModelResourceLocation(item, 0,
                 new ModelResourceLocation(HIDDEN_LIGHT.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(LANTERN_BENCH), 0,
+                new ModelResourceLocation(LANTERN_BENCH.getRegistryName(), "inventory"));
         }
 
         @SubscribeEvent

@@ -25,6 +25,21 @@ public class ModItems {
         .setRegistryName(Lantern.MODID, "glow_capacitor")
         .setTranslationKey(Lantern.MODID + ".glow_capacitor")
         .setCreativeTab(net.minecraft.creativetab.CreativeTabs.MATERIALS);
+    public static final com.dutchess77.lantern.item.UpgradeItem RANGE_UPGRADE =
+        new com.dutchess77.lantern.item.UpgradeItem(com.dutchess77.lantern.item.UpgradeType.RANGE);
+    public static final com.dutchess77.lantern.item.UpgradeItem EFFICIENCY_UPGRADE =
+        new com.dutchess77.lantern.item.UpgradeItem(com.dutchess77.lantern.item.UpgradeType.EFFICIENCY);
+    public static final com.dutchess77.lantern.item.UpgradeItem CAPACITY_UPGRADE =
+        new com.dutchess77.lantern.item.UpgradeItem(com.dutchess77.lantern.item.UpgradeType.CAPACITY);
+
+    public static com.dutchess77.lantern.item.UpgradeItem upgradeFor(com.dutchess77.lantern.item.UpgradeType type) {
+        switch (type) {
+            case RANGE: return RANGE_UPGRADE;
+            case EFFICIENCY: return EFFICIENCY_UPGRADE;
+            case CAPACITY: return CAPACITY_UPGRADE;
+            default: return null;
+        }
+    }
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
@@ -33,6 +48,9 @@ public class ModItems {
         event.getRegistry().register(TORCH_LANTERN);
         event.getRegistry().register(CREATIVE_LANTERN);
         event.getRegistry().register(GLOW_CAPACITOR);
+        event.getRegistry().register(RANGE_UPGRADE);
+        event.getRegistry().register(EFFICIENCY_UPGRADE);
+        event.getRegistry().register(CAPACITY_UPGRADE);
     }
 
     @Mod.EventBusSubscriber(value = Side.CLIENT, modid = Lantern.MODID)
@@ -49,6 +67,12 @@ public class ModItems {
                 new ModelResourceLocation(CREATIVE_LANTERN.getRegistryName(), "inventory"));
             ModelLoader.setCustomModelResourceLocation(GLOW_CAPACITOR, 0,
                 new ModelResourceLocation(GLOW_CAPACITOR.getRegistryName(), "inventory"));
+            for (Item upgrade : new Item[] { RANGE_UPGRADE, EFFICIENCY_UPGRADE, CAPACITY_UPGRADE }) {
+                for (int meta = 0; meta < com.dutchess77.lantern.item.UpgradeItem.MAX_TIER; meta++) {
+                    ModelLoader.setCustomModelResourceLocation(upgrade, meta,
+                        new ModelResourceLocation(upgrade.getRegistryName(), "inventory"));
+                }
+            }
         }
     }
 }

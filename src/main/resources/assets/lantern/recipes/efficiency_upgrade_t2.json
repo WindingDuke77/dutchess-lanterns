@@ -1,0 +1,8 @@
+{
+  "type": "forge:ore_shapeless",
+  "ingredients": [
+    { "item": "lantern:efficiency_upgrade", "data": 0 },
+    { "item": "minecraft:glowstone" }, { "item": "minecraft:glowstone" }, { "item": "minecraft:glowstone" }, { "item": "minecraft:glowstone" }
+  ],
+  "result": { "item": "lantern:efficiency_upgrade", "data": 1 }
+}

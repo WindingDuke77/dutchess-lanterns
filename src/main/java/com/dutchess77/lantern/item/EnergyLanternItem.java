@@ -30,11 +30,16 @@ public class EnergyLanternItem extends LanternItem {
         super("energy_lantern");
     }
 
+    /** FE capacity including Capacity upgrades. */
+    public static int energyCapacityOf(ItemStack stack) {
+        return LanternUpgrades.effectiveCapacity(stack, LanternConfig.energyCapacity);
+    }
+
     @Override
     protected void fill(EntityPlayer player, ItemStack stack) {
         // no inventory fuel; just report the charge level
         player.sendStatusMessage(new TextComponentTranslation("chat.lantern.energy",
-            formatFE(getEnergy(stack)), formatFE(LanternConfig.energyCapacity)), true);
+            formatFE(getEnergy(stack)), formatFE(energyCapacityOf(stack))), true);
     }
 
     /** 1234 -> "1.23k", 200000 -> "200k", 1500000 -> "1.5M"; at most two decimals. */
@@ -75,7 +80,7 @@ public class EnergyLanternItem extends LanternItem {
 
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
-        int capacity = Math.max(1, LanternConfig.energyCapacity);
+        int capacity = Math.max(1, energyCapacityOf(stack));
         return 1.0D - Math.min(getEnergy(stack), capacity) / (double) capacity;
     }
 
@@ -88,7 +93,7 @@ public class EnergyLanternItem extends LanternItem {
     @SideOnly(Side.CLIENT)
     protected String describeFuel(ItemStack stack) {
         return TextFormatting.RED
-            + I18n.format("tooltip.lantern.energy", formatFE(getEnergy(stack)), formatFE(LanternConfig.energyCapacity));
+            + I18n.format("tooltip.lantern.energy", formatFE(getEnergy(stack)), formatFE(energyCapacityOf(stack)));
     }
 
     @Override
@@ -118,12 +123,12 @@ public class EnergyLanternItem extends LanternItem {
         if (stack.hasTagCompound() && stack.getTagCompound().hasKey(TAG_ENERGY)) {
             return stack.getTagCompound().getInteger(TAG_ENERGY);
         }
-        return LanternConfig.energyCapacity;
+        return energyCapacityOf(stack);
     }
 
     public static void setEnergy(ItemStack stack, int energy) {
         getOrCreateTag(stack).setInteger(TAG_ENERGY,
-            Math.max(0, Math.min(LanternConfig.energyCapacity, energy)));
+            Math.max(0, Math.min(energyCapacityOf(stack), energy)));
     }
 
     @Override
@@ -154,7 +159,7 @@ public class EnergyLanternItem extends LanternItem {
         @Override
         public int receiveEnergy(int maxReceive, boolean simulate) {
             int stored = getEnergy(stack);
-            int accepted = Math.max(0, Math.min(maxReceive, LanternConfig.energyCapacity - stored));
+            int accepted = Math.max(0, Math.min(maxReceive, energyCapacityOf(stack) - stored));
             if (accepted > 0 && !simulate) {
                 setEnergy(stack, stored + accepted);
             }
@@ -178,7 +183,7 @@ public class EnergyLanternItem extends LanternItem {
 
         @Override
         public int getMaxEnergyStored() {
-            return LanternConfig.energyCapacity;
+            return energyCapacityOf(stack);
         }
 
         @Override

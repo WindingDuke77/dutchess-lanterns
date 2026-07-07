@@ -1,0 +1,8 @@
+{
+  "type": "forge:ore_shapeless",
+  "ingredients": [
+    { "item": "lantern:range_upgrade", "data": 2 },
+    { "item": "lantern:glow_capacitor" }, { "item": "lantern:glow_capacitor" }, { "item": "lantern:glow_capacitor" }, { "item": "lantern:glow_capacitor" }
+  ],
+  "result": { "item": "lantern:range_upgrade", "data": 3 }
+}

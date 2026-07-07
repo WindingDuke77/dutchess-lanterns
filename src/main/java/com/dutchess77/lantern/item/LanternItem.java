@@ -157,9 +157,14 @@ public class LanternItem extends Item implements baubles.api.IBauble {
         return "chat.lantern.charge";
     }
 
+    /** Buffer size including Capacity upgrades. */
+    public int capacityOf(ItemStack stack) {
+        return LanternUpgrades.effectiveCapacity(stack, LanternConfig.bufferCapacity);
+    }
+
     /** Plain right-click loads fuel items from the inventory into the buffer. */
     protected void fill(EntityPlayer player, ItemStack stack) {
-        int capacity = LanternConfig.bufferCapacity;
+        int capacity = capacityOf(stack);
         int charge = Math.min(getCharge(stack), capacity);
         int moved = 0;
         Item fuel = fuelItem();
@@ -207,6 +212,9 @@ public class LanternItem extends Item implements baubles.api.IBauble {
     public boolean consumePlacementCost(EntityPlayer player, ItemStack stack) {
         if (player.capabilities.isCreativeMode && LanternConfig.freeInCreative) {
             return true;
+        }
+        if (player.getRNG().nextFloat() < LanternUpgrades.freeChance(stack)) {
+            return true; // Efficiency upgrade proc
         }
         int charge = getCharge(stack);
         if (charge > 0) {
@@ -260,7 +268,7 @@ public class LanternItem extends Item implements baubles.api.IBauble {
 
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
-        int capacity = Math.max(1, LanternConfig.bufferCapacity);
+        int capacity = Math.max(1, capacityOf(stack));
         return 1.0D - Math.min(getCharge(stack), capacity) / (double) capacity;
     }
 
@@ -288,6 +296,13 @@ public class LanternItem extends Item implements baubles.api.IBauble {
             + I18n.format(active ? "tooltip.lantern.active" : "tooltip.lantern.inactive"));
         tooltip.add(describeFuel(stack));
         tooltip.add(TextFormatting.GRAY + describeCost());
+        java.util.List<LanternUpgrades.Installed> upgrades = LanternUpgrades.list(stack);
+        tooltip.add(TextFormatting.LIGHT_PURPLE + I18n.format("tooltip.lantern.sockets",
+            upgrades.size(), LanternUpgrades.socketCount(stack)));
+        for (LanternUpgrades.Installed upgrade : upgrades) {
+            tooltip.add(TextFormatting.LIGHT_PURPLE + "  " + I18n.format(
+                "item.lantern." + upgrade.type.key + "_t" + upgrade.tier + ".name"));
+        }
         tooltip.add("");
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format("tooltip.lantern.howto1"));
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + I18n.format(howtoFillKey()));
@@ -296,7 +311,7 @@ public class LanternItem extends Item implements baubles.api.IBauble {
     @SideOnly(Side.CLIENT)
     protected String describeFuel(ItemStack stack) {
         return TextFormatting.YELLOW
-            + I18n.format("tooltip.lantern.charge", getCharge(stack), LanternConfig.bufferCapacity);
+            + I18n.format("tooltip.lantern.charge", getCharge(stack), capacityOf(stack));
     }
 
     @SideOnly(Side.CLIENT)
@@ -331,7 +346,9 @@ public class LanternItem extends Item implements baubles.api.IBauble {
         if (stack.hasTagCompound() && stack.getTagCompound().hasKey(TAG_CHARGE)) {
             return stack.getTagCompound().getInteger(TAG_CHARGE);
         }
-        return LanternConfig.bufferCapacity;
+        return stack.getItem() instanceof LanternItem
+            ? ((LanternItem) stack.getItem()).capacityOf(stack)
+            : LanternConfig.bufferCapacity;
     }
 
     public static void setCharge(ItemStack stack, int charge) {

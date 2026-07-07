@@ -1,0 +1,6 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [ " X ", "XGX", " X " ],
+  "key": { "X": { "item": "minecraft:redstone" }, "G": { "item": "minecraft:glowstone" } },
+  "result": { "item": "lantern:efficiency_upgrade", "data": 0 }
+}

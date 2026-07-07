@@ -1,0 +1,8 @@
+{
+  "type": "forge:ore_shapeless",
+  "ingredients": [
+    { "item": "lantern:capacity_upgrade", "data": 0 },
+    { "item": "minecraft:glowstone" }, { "item": "minecraft:glowstone" }, { "item": "minecraft:glowstone" }, { "item": "minecraft:glowstone" }
+  ],
+  "result": { "item": "lantern:capacity_upgrade", "data": 1 }
+}

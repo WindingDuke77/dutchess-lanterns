@@ -1,0 +1,8 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "cube_bottom_top",
+    "textures": { "top": "lantern:blocks/bench_top", "side": "lantern:blocks/bench_side", "bottom": "minecraft:blocks/planks_oak" }
+  },
+  "variants": { "normal": [{}], "inventory": [{}] }
+}

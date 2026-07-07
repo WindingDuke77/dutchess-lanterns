@@ -4,6 +4,26 @@ item.lantern.torch_lantern.name=Torch Lantern
 item.lantern.creative_lantern.name=Creative Lantern
 tile.lantern.hidden_light.name=Hidden Light
 item.lantern.glow_capacitor.name=Glow Capacitor
+tile.lantern.lantern_bench.name=Lantern Bench
+
+item.lantern.range_upgrade_t1.name=Range Upgrade I
+item.lantern.range_upgrade_t2.name=Range Upgrade II
+item.lantern.range_upgrade_t3.name=Range Upgrade III
+item.lantern.range_upgrade_t4.name=Range Upgrade IV
+item.lantern.efficiency_upgrade_t1.name=Efficiency Upgrade I
+item.lantern.efficiency_upgrade_t2.name=Efficiency Upgrade II
+item.lantern.efficiency_upgrade_t3.name=Efficiency Upgrade III
+item.lantern.efficiency_upgrade_t4.name=Efficiency Upgrade IV
+item.lantern.capacity_upgrade_t1.name=Capacity Upgrade I
+item.lantern.capacity_upgrade_t2.name=Capacity Upgrade II
+item.lantern.capacity_upgrade_t3.name=Capacity Upgrade III
+item.lantern.capacity_upgrade_t4.name=Capacity Upgrade IV
+
+gui.lantern.bench=Lantern Bench
+gui.lantern.clear=Clear
+gui.lantern.insert=Insert a lantern
+gui.lantern.sockets=Sockets: %d/%d
+tooltip.lantern.sockets=Sockets: %d/%d
 
 tooltip.lantern.active=● Active
 tooltip.lantern.inactive=○ Inactive

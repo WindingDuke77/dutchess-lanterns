@@ -1,0 +1,8 @@
+{
+  "type": "forge:ore_shapeless",
+  "ingredients": [
+    { "item": "lantern:capacity_upgrade", "data": 1 },
+    { "item": "minecraft:diamond" }, { "item": "minecraft:diamond" }, { "item": "minecraft:diamond" }, { "item": "minecraft:diamond" }
+  ],
+  "result": { "item": "lantern:capacity_upgrade", "data": 2 }
+}

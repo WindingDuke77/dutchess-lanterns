@@ -47,7 +47,7 @@ public class LanternTickHandler {
         }
 
         BlockPos center = new BlockPos(player);
-        int r = LanternConfig.horizontalRadius;
+        int r = com.dutchess77.lantern.item.LanternUpgrades.effectiveRadius(lantern, LanternConfig.horizontalRadius);
         int vr = LanternConfig.verticalRange;
 
         if (lantern.getItem() instanceof TorchLanternItem) {

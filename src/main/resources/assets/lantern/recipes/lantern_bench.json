@@ -1,0 +1,6 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [ "III", "PGP", "PPP" ],
+  "key": { "I": { "item": "minecraft:iron_ingot" }, "P": { "type": "forge:ore_dict", "ore": "plankWood" }, "G": { "item": "lantern:glow_capacitor" } },
+  "result": { "item": "lantern:lantern_bench" }
+}
