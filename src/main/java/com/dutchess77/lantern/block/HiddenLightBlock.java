@@ -4,7 +4,9 @@ import com.dutchess77.lantern.Lantern;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -120,6 +122,40 @@ public class HiddenLightBlock extends Block {
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos,
                                   EntityPlayer player) {
         return new ItemStack(Blocks.GLOWSTONE);
+    }
+
+    /** Minimaps (Xaero's etc.) color the map from this - report the disguise, not stone gray. */
+    @Override
+    public MapColor getMapColor(IBlockState state, IBlockAccess world, BlockPos pos) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof HiddenLightTileEntity) {
+            IBlockState mimic = ((HiddenLightTileEntity) te).getMimic();
+            if (mimic != null) {
+                try {
+                    return mimic.getMapColor(world, pos);
+                } catch (Throwable t) {
+                    // fall through to stone
+                }
+            }
+        }
+        return MapColor.STONE;
+    }
+
+    /** Walking on the light sounds like the block it mimics. */
+    @Override
+    public SoundType getSoundType(IBlockState state, World world, BlockPos pos, Entity entity) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof HiddenLightTileEntity) {
+            IBlockState mimic = ((HiddenLightTileEntity) te).getMimic();
+            if (mimic != null && !(mimic.getBlock() instanceof HiddenLightBlock)) {
+                try {
+                    return mimic.getBlock().getSoundType(mimic, world, pos, entity);
+                } catch (Throwable t) {
+                    // fall through to stone
+                }
+            }
+        }
+        return SoundType.STONE;
     }
 
     @Override
