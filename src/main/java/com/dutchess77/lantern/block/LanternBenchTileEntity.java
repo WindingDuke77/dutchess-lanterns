@@ -104,7 +104,11 @@ public class LanternBenchTileEntity extends TileEntity {
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        inventory.deserializeNBT(compound.getCompoundTag("Inventory"));
+        NBTTagCompound inventoryTag = compound.getCompoundTag("Inventory");
+        // deserializeNBT resizes the handler to the saved Size - benches saved by
+        // older versions had fewer slots and would crash the 5-slot container
+        inventoryTag.setInteger("Size", 1 + SOCKET_COUNT);
+        inventory.deserializeNBT(inventoryTag);
     }
 
     @Override

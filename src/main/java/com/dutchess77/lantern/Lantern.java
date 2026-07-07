@@ -27,7 +27,7 @@ public class Lantern {
 
     public static final String MODID = "lantern";
     public static final String NAME = "Dutchess Lanterns";
-    public static final String VERSION = "3.1.0";
+    public static final String VERSION = "3.1.1";
 
     public static final int GUI_BENCH = 0;
 
