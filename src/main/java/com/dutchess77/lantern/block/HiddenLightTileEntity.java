@@ -11,15 +11,26 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
-/** Remembers which block this light replaced, and keeps the client in sync. */
-public class HiddenLightTileEntity extends TileEntity {
+/**
+ * Remembers which block this light replaced, and keeps the client in sync.
+ * Extends the bundled FramedTileEntity skeleton so Xaero's maps color this
+ * block as its disguise (they call getCamoState reflectively, off-thread -
+ * hence the volatile mimic).
+ */
+public class HiddenLightTileEntity extends xfacthd.framedblocks.common.tileentity.FramedTileEntity {
 
     private static final String TAG_ID = "MimicId";
     private static final String TAG_META = "MimicMeta";
     private static final String TAG_FROM_ENERGY = "FromEnergy";
 
-    private IBlockState mimic;
+    private volatile IBlockState mimic;
     private boolean fromEnergy;
+
+    @Override
+    @Nullable
+    public IBlockState getCamoState() {
+        return mimic;
+    }
 
     @Nullable
     public IBlockState getMimic() {
