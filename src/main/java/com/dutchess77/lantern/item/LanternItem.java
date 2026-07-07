@@ -205,7 +205,7 @@ public class LanternItem extends Item implements baubles.api.IBauble {
 
     /** Pays for one placed light: buffer first, then raw fuel items from the inventory. */
     public boolean consumePlacementCost(EntityPlayer player, ItemStack stack) {
-        if (player.capabilities.isCreativeMode) {
+        if (player.capabilities.isCreativeMode && LanternConfig.freeInCreative) {
             return true;
         }
         int charge = getCharge(stack);

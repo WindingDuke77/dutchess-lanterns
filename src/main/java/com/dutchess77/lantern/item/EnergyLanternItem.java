@@ -61,7 +61,7 @@ public class EnergyLanternItem extends LanternItem {
 
     @Override
     public boolean consumePlacementCost(EntityPlayer player, ItemStack stack) {
-        if (player.capabilities.isCreativeMode) {
+        if (player.capabilities.isCreativeMode && LanternConfig.freeInCreative) {
             return true;
         }
         int cost = LanternConfig.energyPerLight;

@@ -121,7 +121,7 @@ public class HiddenLightBlock extends Block {
     @Override
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos,
                                   EntityPlayer player) {
-        return new ItemStack(Blocks.GLOWSTONE);
+        return new ItemStack(this); // shows as "Hidden Light (Lantern)" in Waila/pick-block
     }
 
     /** Minimaps (Xaero's etc.) color the map from this - report the disguise, not stone gray. */

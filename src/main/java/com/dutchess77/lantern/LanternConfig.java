@@ -36,6 +36,9 @@ public class LanternConfig {
     @Config.Comment("After the grid pass, also light dark spots the grid missed (walls, unplaceable ground)")
     public static boolean fillGaps = true;
 
+    @Config.Comment("Creative-mode players place lights for free (the Creative Lantern is always free)")
+    public static boolean freeInCreative = false;
+
     @Config.Comment("Also light the ground under water (ocean/lake floors)")
     public static boolean lightUnderwater = true;
 
