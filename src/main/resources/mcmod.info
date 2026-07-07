@@ -1,8 +1,8 @@
 [
   {
     "modid": "lantern",
-    "name": "Lantern",
-    "description": "Sweeps up torches and buries painted glowstone in the ground as you walk.",
+    "name": "Dutchess Lanterns",
+    "description": "Sweeps up torches and buries invisible lights in the ground as you walk.",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "",

@@ -1,6 +1,6 @@
-# Lantern
+# Dutchess Lanterns
 
-A Minecraft 1.12.2 Forge mod by **dutchess77**. Automates area lighting: sweeps up torches
+A Minecraft 1.12.2 Forge mod by **dutchess77** (mod id `lantern`). Automates area lighting: sweeps up torches
 and buries **invisible lights** in the ground as you walk. Built for Tekxit 3.14 Pi but works
 in any 1.12.2 pack — EnderIO and Baubles are optional integrations, not requirements.
 

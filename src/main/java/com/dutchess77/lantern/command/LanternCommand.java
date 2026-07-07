@@ -86,7 +86,7 @@ public class LanternCommand extends CommandBase {
     }
 
     private static void help(ICommandSender sender) {
-        say(sender, "=== Lantern " + Lantern.VERSION + " ===");
+        say(sender, "=== Dutchess Lanterns " + Lantern.VERSION + " ===");
         say(sender, "Sneak + Right-Click (air): toggle on/off (glints while on)");
         say(sender, "Right-Click: load fuel from inventory + carried containers");
         say(sender, "Sneak + Right-Click ON A BLOCK: reclaim hidden lights nearby (refunds glowstone)");
