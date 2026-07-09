@@ -48,8 +48,12 @@ public class HiddenLightBakedModel implements IBakedModel {
             return Collections.emptyList();
         }
         try {
+            // model registry is keyed by clean states; extended mimics (CTM
+            // connections etc.) still go to getQuads so the model can use them
+            IBlockState lookup = mimic instanceof IExtendedBlockState
+                ? ((IExtendedBlockState) mimic).getClean() : mimic;
             IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher()
-                .getBlockModelShapes().getModelForState(mimic);
+                .getBlockModelShapes().getModelForState(lookup);
             return model.getQuads(mimic, side, rand);
         } catch (Throwable t) {
             return fallback.getQuads(state, side, rand);

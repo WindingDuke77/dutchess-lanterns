@@ -1,5 +1,7 @@
 package com.dutchess77.lantern.block;
 
+import javax.annotation.Nonnull;
+
 import com.dutchess77.lantern.Lantern;
 
 import net.minecraft.block.Block;
@@ -16,6 +18,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -30,7 +33,7 @@ import net.minecraftforge.common.property.IUnlistedProperty;
  * renders whatever block it replaced (stored in its tile entity). Drops the
  * Glowstone block it cost.
  */
-public class HiddenLightBlock extends Block {
+public class HiddenLightBlock extends Block implements team.chisel.ctm.api.IFacade {
 
     public static final IUnlistedProperty<IBlockState> MIMIC = new IUnlistedProperty<IBlockState>() {
         @Override
@@ -84,10 +87,32 @@ public class HiddenLightBlock extends Block {
         if (state instanceof IExtendedBlockState && te instanceof HiddenLightTileEntity) {
             IBlockState mimic = ((HiddenLightTileEntity) te).getMimic();
             if (mimic != null) {
+                // resolve the mimic's actual + extended state at THIS position so
+                // CTM/connected-texture models compute their connections
+                try {
+                    IBlockState actual = mimic.getActualState(world, pos);
+                    mimic = actual.getBlock().getExtendedState(actual, world, pos);
+                } catch (Throwable t) {
+                    // some mods' state code chokes on foreign positions - plain mimic then
+                }
                 return ((IExtendedBlockState) state).withProperty(MIMIC, mimic);
             }
         }
         return state;
+    }
+
+    /** CTM facade: neighboring connected-texture blocks connect across us as if we were the mimic. */
+    @Nonnull
+    @Override
+    public IBlockState getFacade(@Nonnull IBlockAccess world, @Nonnull BlockPos pos, EnumFacing side) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof HiddenLightTileEntity) {
+            IBlockState mimic = ((HiddenLightTileEntity) te).getMimic();
+            if (mimic != null) {
+                return mimic;
+            }
+        }
+        return getDefaultState();
     }
 
     /** Drops the glowstone block it cost - unless an Energy Lantern paid FE for it. */

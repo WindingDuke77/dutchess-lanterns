@@ -111,6 +111,19 @@ public class LanternCommand extends CommandBase {
             + " sparkle=" + LanternConfig.sparkleSeconds + "s");
         say(sender, " buffer=" + LanternConfig.bufferCapacity
             + " energy=" + LanternConfig.energyCapacity + "FE @" + LanternConfig.energyPerLight + "FE/light");
+        if (sender instanceof net.minecraft.entity.player.EntityPlayer) {
+            net.minecraft.item.ItemStack held =
+                ((net.minecraft.entity.player.EntityPlayer) sender).getHeldItemMainhand();
+            if (held.getItem() instanceof com.dutchess77.lantern.item.EnergyLanternItem) {
+                say(sender, " held Energy Lantern (server truth): "
+                    + com.dutchess77.lantern.item.EnergyLanternItem.getEnergy(held) + "/"
+                    + com.dutchess77.lantern.item.EnergyLanternItem.energyCapacityOf(held) + " FE");
+            } else if (held.getItem() instanceof com.dutchess77.lantern.item.LanternItem) {
+                say(sender, " held lantern (server truth): "
+                    + com.dutchess77.lantern.item.LanternItem.getCharge(held) + "/"
+                    + ((com.dutchess77.lantern.item.LanternItem) held.getItem()).capacityOf(held) + " glowstone");
+            }
+        }
     }
 
     private static void why(ICommandSender sender, World world, BlockPos pos) {
