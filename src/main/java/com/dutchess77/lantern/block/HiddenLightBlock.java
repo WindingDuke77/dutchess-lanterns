@@ -63,7 +63,13 @@ public class HiddenLightBlock extends Block implements team.chisel.ctm.api.IFaca
         setTranslationKey(Lantern.MODID + ".hidden_light");
         setHardness(0.3F);
         setSoundType(SoundType.STONE);
-        setLightLevel(1.0F);
+        setLightLevel(1.0F); // registration-time max; runtime value from getLightValue below
+    }
+
+    /** Emission is configurable so disguised floors can be softened (default 15 = glowstone). */
+    @Override
+    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return com.dutchess77.lantern.LanternConfig.lightEmission;
     }
 
     @Override

@@ -21,6 +21,12 @@ public class LanternConfig {
     @Config.RangeInt(min = 0, max = 14)
     public static int lightThreshold = 7;
 
+    @Config.Comment({"How much light hidden lights emit (15 = glowstone).",
+        "Lower values look more natural on disguised floors but need a tighter grid to stay spawn-proof.",
+        "A value of N keeps light >= 8 up to N-8 blocks away, so pair it with gridSpacing <= 2*(N-8)."})
+    @Config.RangeInt(min = 9, max = 15)
+    public static int lightEmission = 15;
+
     @Config.Comment("Horizontal radius of the area processed around the player (16 = 32x32)")
     @Config.RangeInt(min = 1, max = 32)
     public static int horizontalRadius = 16;
