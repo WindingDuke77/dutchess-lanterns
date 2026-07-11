@@ -44,7 +44,7 @@ public class LanternBenchGui extends GuiContainer {
         fontRenderer.drawString(I18n.format("gui.lantern.bench"), 8, 6, 0x404040);
         if (BAUBLES) {
             String baubles = TextFormatting.DARK_PURPLE + I18n.format("gui.lantern.baubles");
-            fontRenderer.drawString(baubles, xSize - 8 - fontRenderer.getStringWidth(baubles), 6, 0x404040);
+            fontRenderer.drawString(baubles, xSize - 8 - fontRenderer.getStringWidth(baubles), 72, 0x404040);
         }
         ItemStack lantern = bench.getInventory().getStackInSlot(LanternBenchTileEntity.SLOT_LANTERN);
         String status = lantern.getItem() instanceof LanternItem

@@ -20,7 +20,7 @@ item.lantern.capacity_upgrade_t3.name=Capacity Upgrade III
 item.lantern.capacity_upgrade_t4.name=Capacity Upgrade IV
 
 gui.lantern.bench=Lantern Bench
-gui.lantern.baubles=Baubles: Charm slot ready
+gui.lantern.baubles=◆ Baubles
 gui.lantern.insert=Insert a lantern
 gui.lantern.sockets=Sockets: %d/%d
 tooltip.lantern.sockets=Sockets: %d/%d
