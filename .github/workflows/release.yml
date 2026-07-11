@@ -35,6 +35,8 @@ jobs:
       - name: Build
         if: steps.exists.outputs.released == 'false'
         run: |
+          # gradle.properties pins the local Windows JDK path - CI uses setup-java's
+          sed -i '/org.gradle.java.home/d' gradle.properties
           chmod +x gradlew
           ./gradlew build --no-daemon
 
