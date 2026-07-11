@@ -46,6 +46,7 @@ tooltip.lantern.howto2_torch=Right-Click to load Torches
 tooltip.lantern.howto2_creative=Places visible Glowstone, costs nothing
 tooltip.lantern.baubles=Wearable in the Baubles Charm slot
 
+chat.lantern.update=Dutchess Lanterns %s downloaded - installs when the game closes
 chat.lantern.on=Lantern activated
 chat.lantern.off=Lantern deactivated
 chat.lantern.charge=Glowstone: %d/%d
