@@ -45,8 +45,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # second copy under a stable name so /releases/latest/download/lantern.jar
+          # is an evergreen install link (the self-updater uses the versioned one)
+          cp "build/libs/lantern-${{ steps.ver.outputs.version }}.jar" lantern.jar
           gh release create "v${{ steps.ver.outputs.version }}" \
             "build/libs/lantern-${{ steps.ver.outputs.version }}.jar" \
+            lantern.jar \
             --repo "$GITHUB_REPOSITORY" \
             --title "${{ steps.ver.outputs.version }}" \
             --generate-notes
