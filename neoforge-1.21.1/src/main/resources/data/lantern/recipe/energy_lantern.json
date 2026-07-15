@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ONO",
+    "CLC",
+    "ORO"
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    },
+    "C": {
+      "item": "lantern:glow_capacitor"
+    },
+    "L": {
+      "item": "lantern:lantern"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    }
+  },
+  "result": {
+    "id": "lantern:energy_lantern",
+    "count": 1,
+    "components": {
+      "lantern:energy": 0
+    }
+  }
+}

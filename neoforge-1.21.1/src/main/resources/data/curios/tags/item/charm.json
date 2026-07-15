@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "lantern:lantern", "required": false },
+    { "id": "lantern:energy_lantern", "required": false },
+    { "id": "lantern:torch_lantern", "required": false },
+    { "id": "lantern:creative_lantern", "required": false },
+    { "id": "lantern:dev_lantern", "required": false },
+    { "id": "lantern:glow_wand", "required": false },
+    { "id": "lantern:energy_glow_wand", "required": false },
+    { "id": "lantern:creative_glow_wand", "required": false },
+    { "id": "lantern:dev_glow_wand", "required": false }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "lantern:item/creative_glow_wand"
+  }
+}

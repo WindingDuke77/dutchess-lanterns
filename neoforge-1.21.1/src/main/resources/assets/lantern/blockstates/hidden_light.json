@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "lantern:block/hidden_light" }
+  }
+}

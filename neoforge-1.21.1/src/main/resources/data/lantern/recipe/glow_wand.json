@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "  G",
+    " D ",
+    "S  "
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:glowstone"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "lantern:glow_wand",
+    "count": 1,
+    "components": {
+      "lantern:charge": 0
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "lantern:block/bench_top",
+    "side": "lantern:block/bench_side",
+    "bottom": "minecraft:block/oak_planks"
+  }
+}

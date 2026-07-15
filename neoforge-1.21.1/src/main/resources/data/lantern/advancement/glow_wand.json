@@ -1,0 +1,17 @@
+{
+  "parent": "lantern:root",
+  "display": {
+    "icon": { "id": "lantern:glow_wand" },
+    "title": "Make It Glow",
+    "description": "Craft a Glow Wand - point at a block and swap it for a glowing copy",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "has_glow_wand": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [ { "items": [ "lantern:glow_wand" ] } ] }
+    }
+  }
+}

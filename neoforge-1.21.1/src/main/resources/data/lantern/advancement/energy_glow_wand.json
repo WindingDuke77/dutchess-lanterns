@@ -1,0 +1,17 @@
+{
+  "parent": "lantern:glow_wand",
+  "display": {
+    "icon": { "id": "lantern:energy_glow_wand" },
+    "title": "Overcharged Wand",
+    "description": "Upgrade the Glow Wand with a Glow Capacitor - swaps, powered by power",
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "has_energy_glow_wand": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [ { "items": [ "lantern:energy_glow_wand" ] } ] }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [ "III", "PGP", "PPP" ],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "P": { "tag": "minecraft:planks" },
+    "G": { "item": "lantern:glow_capacitor" }
+  },
+  "result": { "id": "lantern:lantern_bench", "count": 1 }
+}

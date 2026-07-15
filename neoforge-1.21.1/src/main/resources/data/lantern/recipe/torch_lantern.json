@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " I ",
+    "ITI",
+    " C "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "T": {
+      "item": "minecraft:torch"
+    },
+    "C": {
+      "item": "minecraft:coal_block"
+    }
+  },
+  "result": {
+    "id": "lantern:torch_lantern",
+    "count": 1,
+    "components": {
+      "lantern:charge": 0
+    }
+  }
+}

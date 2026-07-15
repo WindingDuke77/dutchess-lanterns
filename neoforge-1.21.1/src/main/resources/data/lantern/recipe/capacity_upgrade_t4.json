@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "lantern:capacity_upgrade_t3" },
+    { "item": "lantern:glow_capacitor" },
+    { "item": "lantern:glow_capacitor" },
+    { "item": "lantern:glow_capacitor" },
+    { "item": "lantern:glow_capacitor" }
+  ],
+  "result": { "id": "lantern:capacity_upgrade_t4", "count": 1 }
+}

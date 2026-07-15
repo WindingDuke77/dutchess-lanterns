@@ -1,0 +1,17 @@
+{
+  "parent": "lantern:root",
+  "display": {
+    "icon": { "id": "lantern:energy_lantern" },
+    "title": "Star Power",
+    "description": "Forge an Energy Lantern from a nether star - light, powered by power",
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "has_energy_lantern": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [ { "items": [ "lantern:energy_lantern" ] } ] }
+    }
+  }
+}

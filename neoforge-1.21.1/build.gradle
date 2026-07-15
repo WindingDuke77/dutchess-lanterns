@@ -1,0 +1,38 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.141'
+}
+
+version = project.mod_version
+group = 'com.dutchess77.lantern'
+// loader + MC version in the jar name so users can tell releases apart at a glance
+base.archivesName = 'lantern-neoforge-1.21.1'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        lantern {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand 'version': project.version
+    }
+}

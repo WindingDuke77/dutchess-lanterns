@@ -1,0 +1,41 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+version = '4.0.0'
+group = 'com.dutchess77.lantern'
+// loader + MC version in the jar name so users can tell releases apart at a glance
+archivesBaseName = 'lantern-forge-1.12.2'
+
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
+
+minecraft {
+    // 2847 is the newest 1.12.2 build published with the FG2.3-style userdev
+    // artifact; the resulting jar runs fine on the pack's 14.23.5.2860 runtime.
+    version = '1.12.2-14.23.5.2847'
+    runDir = 'run'
+    mappings = 'stable_39'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'mcversion', project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}

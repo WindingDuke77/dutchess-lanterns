@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "lantern:efficiency_upgrade_t1" },
+    { "item": "minecraft:glowstone" },
+    { "item": "minecraft:glowstone" },
+    { "item": "minecraft:glowstone" },
+    { "item": "minecraft:glowstone" }
+  ],
+  "result": { "id": "lantern:efficiency_upgrade_t2", "count": 1 }
+}

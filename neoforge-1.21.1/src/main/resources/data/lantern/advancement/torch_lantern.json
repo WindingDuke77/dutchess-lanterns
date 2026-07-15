@@ -1,0 +1,17 @@
+{
+  "parent": "lantern:root",
+  "display": {
+    "icon": { "id": "lantern:torch_lantern" },
+    "title": "Tidy Paranoia",
+    "description": "Craft a Torch Lantern - scattered torches, but make it a grid",
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "has_torch_lantern": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [ { "items": [ "lantern:torch_lantern" ] } ] }
+    }
+  }
+}

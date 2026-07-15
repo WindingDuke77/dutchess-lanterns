@@ -13,13 +13,20 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-java@v4
+        id: jdk8
         with:
           distribution: temurin
           java-version: 8
 
+      - uses: actions/setup-java@v4
+        id: jdk21
+        with:
+          distribution: temurin
+          java-version: 21
+
       - name: Read mod version
         id: ver
-        run: echo "version=$(sed -n "s/^version = '\(.*\)'/\1/p" build.gradle)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(sed -n "s/^version = '\(.*\)'/\1/p" forge-1.12.2/build.gradle)" >> "$GITHUB_OUTPUT"
 
       - name: Skip if already released
         id: exists
@@ -32,10 +39,23 @@ jobs:
             echo "released=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build
+      - name: Build forge-1.12.2
         if: steps.exists.outputs.released == 'false'
+        working-directory: forge-1.12.2
+        env:
+          JAVA_HOME: ${{ steps.jdk8.outputs.path }}
         run: |
           # gradle.properties pins the local Windows JDK path - CI uses setup-java's
+          sed -i '/org.gradle.java.home/d' gradle.properties
+          chmod +x gradlew
+          ./gradlew build --no-daemon
+
+      - name: Build neoforge-1.21.1
+        if: steps.exists.outputs.released == 'false'
+        working-directory: neoforge-1.21.1
+        env:
+          JAVA_HOME: ${{ steps.jdk21.outputs.path }}
+        run: |
           sed -i '/org.gradle.java.home/d' gradle.properties
           chmod +x gradlew
           ./gradlew build --no-daemon
@@ -44,13 +64,16 @@ jobs:
         if: steps.exists.outputs.released == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.ver.outputs.version }}
         run: |
-          # second copy under a stable name so /releases/latest/download/lantern.jar
-          # is an evergreen install link (the self-updater uses the versioned one)
-          cp "build/libs/lantern-${{ steps.ver.outputs.version }}.jar" lantern.jar
-          gh release create "v${{ steps.ver.outputs.version }}" \
-            "build/libs/lantern-${{ steps.ver.outputs.version }}.jar" \
+          # evergreen copy under the historic stable name so
+          # /releases/latest/download/lantern.jar keeps installing the 1.12.2 jar
+          cp "forge-1.12.2/build/libs/lantern-forge-1.12.2-$VERSION.jar" lantern.jar
+          gh release create "v$VERSION" \
+            "forge-1.12.2/build/libs/lantern-forge-1.12.2-$VERSION.jar" \
+            "neoforge-1.21.1/build/libs/lantern-neoforge-1.21.1-$VERSION.jar" \
             lantern.jar \
             --repo "$GITHUB_REPOSITORY" \
-            --title "${{ steps.ver.outputs.version }}" \
-            --generate-notes
+            --title "$VERSION" \
+            --generate-notes \
+            --notes "Pick the jar matching your Minecraft version: \`lantern-forge-1.12.2-*.jar\` for Forge 1.12.2, \`lantern-neoforge-1.21.1-*.jar\` for NeoForge 1.21.1."

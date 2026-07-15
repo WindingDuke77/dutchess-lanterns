@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "C",
+    "W",
+    "R"
+  ],
+  "key": {
+    "C": {
+      "item": "lantern:glow_capacitor"
+    },
+    "W": {
+      "item": "lantern:glow_wand"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    }
+  },
+  "result": {
+    "id": "lantern:energy_glow_wand",
+    "count": 1,
+    "components": {
+      "lantern:energy": 0
+    }
+  }
+}

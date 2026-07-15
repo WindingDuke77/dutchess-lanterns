@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "lantern:capacity_upgrade_t2" },
+    { "item": "minecraft:diamond" },
+    { "item": "minecraft:diamond" },
+    { "item": "minecraft:diamond" },
+    { "item": "minecraft:diamond" }
+  ],
+  "result": { "id": "lantern:capacity_upgrade_t3", "count": 1 }
+}

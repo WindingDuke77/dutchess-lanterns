@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "lantern:efficiency_upgrade_t2" },
+    { "item": "minecraft:diamond" },
+    { "item": "minecraft:diamond" },
+    { "item": "minecraft:diamond" },
+    { "item": "minecraft:diamond" }
+  ],
+  "result": { "id": "lantern:efficiency_upgrade_t3", "count": 1 }
+}

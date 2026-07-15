@@ -1,0 +1,70 @@
+package com.dutchess77.lantern;
+
+import org.apache.logging.log4j.Logger;
+
+import com.dutchess77.lantern.command.LanternCommand;
+import com.dutchess77.lantern.compat.EnderIOPaintHelper;
+import com.dutchess77.lantern.compat.XaeroMapCompat;
+import com.dutchess77.lantern.fx.SparkleManager;
+import com.dutchess77.lantern.handler.LanternTickHandler;
+import com.dutchess77.lantern.handler.LegacyMigrationHandler;
+
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+
+@Mod(
+    modid = Lantern.MODID,
+    name = Lantern.NAME,
+    version = Lantern.VERSION,
+    acceptedMinecraftVersions = "[1.12.2]",
+    dependencies = "required-after:forge@[14.23.5.2800,);after:enderio;after:baubles"
+)
+public class Lantern {
+
+    public static final String MODID = "lantern";
+    public static final String NAME = "Dutchess Lanterns";
+    public static final String VERSION = "4.0.0";
+
+    public static final int GUI_BENCH = 0;
+    public static final int GUI_WARD = 1;
+
+    public static net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper NETWORK;
+
+    @Mod.Instance(MODID)
+    public static Lantern instance;
+
+    public static Logger LOGGER;
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        LOGGER = event.getModLog();
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event) {
+        EnderIOPaintHelper.init();
+        MinecraftForge.EVENT_BUS.register(new LanternTickHandler());
+        MinecraftForge.EVENT_BUS.register(new SparkleManager());
+        MinecraftForge.EVENT_BUS.register(new LegacyMigrationHandler());
+        net.minecraftforge.fml.common.network.NetworkRegistry.INSTANCE.registerGuiHandler(
+            this, new com.dutchess77.lantern.gui.LanternGuiHandler());
+        NETWORK = net.minecraftforge.fml.common.network.NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+        NETWORK.registerMessage(com.dutchess77.lantern.network.WardAdjustMessage.Handler.class,
+            com.dutchess77.lantern.network.WardAdjustMessage.class, 0,
+            net.minecraftforge.fml.relauncher.Side.SERVER);
+    }
+
+    @Mod.EventHandler
+    public void loadComplete(FMLLoadCompleteEvent event) {
+        XaeroMapCompat.init();
+    }
+
+    @Mod.EventHandler
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new LanternCommand());
+    }
+}

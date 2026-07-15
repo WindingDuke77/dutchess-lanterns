@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "OGO",
+    "GTG",
+    "ODO"
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "G": {
+      "item": "minecraft:glowstone"
+    },
+    "T": {
+      "item": "minecraft:torch"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "id": "lantern:lantern",
+    "count": 1,
+    "components": {
+      "lantern:charge": 0
+    }
+  }
+}

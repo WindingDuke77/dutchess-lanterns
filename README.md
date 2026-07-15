@@ -1,64 +1,61 @@
 # Dutchess Lanterns
 
-A Minecraft 1.12.2 Forge mod by **dutchess77** (mod id `lantern`). Automates area lighting: sweeps up torches
-and buries **invisible lights** in the ground as you walk. Built for Tekxit 3.14 Pi but works
-in any 1.12.2 pack — EnderIO and Baubles are optional integrations, not requirements.
+A Minecraft mod by **dutchess77** (mod id `lantern`). Automates area lighting: sweeps up
+torches and buries **invisible lights** in the ground as you walk. Also ships manual Glow
+Wands, an upgrade bench, and Darkness Wards to keep areas dark on purpose.
 
-## Items
+## Which version do I need?
 
-| Item | Fuel | Notes |
-|---|---|---|
-| **Lantern** | 1 Glowstone block per light | The original. Obsidian/glowstone/diamond recipe. |
-| **Energy Lantern** | 2,000 FE per light (200k buffer) | Charge in any FE item charger. Nether star recipe. FE-paid lights drop no glowstone. |
-| **Torch Lantern** | 1 Torch per light | Places visible torches on the grid instead — a tidy Lantern of Paranoia. Never sweeps torches. |
-| **Creative Lantern** | Free | Places plain visible glowstone. Creative menu only. |
+Pick the jar that matches your Minecraft version and mod loader. Every release on the
+[releases page](https://github.com/WindingDuke77/dutchess-lanterns/releases) contains one
+jar per supported version, named `lantern-<loader>-<mc version>-<mod version>.jar`.
 
-## Controls
+| Minecraft | Loader | Jar to download | Project folder | Notes |
+|---|---|---|---|---|
+| 1.21.1 | NeoForge | `lantern-neoforge-1.21.1-<version>.jar` | [`neoforge-1.21.1/`](neoforge-1.21.1/) | Curios integration (optional) |
+| 1.12.2 | Forge | `lantern-forge-1.12.2-<version>.jar` | [`forge-1.12.2/`](forge-1.12.2/) | The original; Baubles + EnderIO integration (optional). Built for Tekxit 3.14 Pi |
 
-- **Sneak + Right-Click (air)** — toggle on/off (item glints while active)
-- **Right-Click** — load fuel from inventory, topping up from carried backpacks
-- **Sneak + Right-Click on a block** — *reclaim*: reverts hidden lights around it, refunding glowstone
-- Works held, on the hotbar, or worn in the **Baubles charm slot**
-- `/lantern help` in-game for the same info
+The mod must be installed on **both client and server** (it registers blocks and items).
 
-## Behavior
+All versions share the same mod version number — `4.0.0` of the 1.12.2 jar and `4.0.0`
+of the 1.21.1 jar have the same features wherever the platforms allow.
 
-While active, every half-second it processes a 32x32 area around you:
+## What it does (all versions)
 
-- Removes torches (configurable whitelist) and returns them to your inventory
-- Replaces ground blocks with **`lantern:hidden_light`** — a full solid block at light 15
-  whose model renders the block it replaced, so the lighting is invisible
-- Placements snap to a **global, world-aligned 6-block grid**; a gap-fill pass then fixes
-  any standable spot still dark (walls, overhangs, unplaceable ground), anchored to the
-  exact dark spot; the level *you're on* is served, not floors above you
-- Only acts where block light ≤ 7; never replaces light sources, ores, containers,
-  unbreakables, leaves, or transparent blocks; also lights the ground under water
-- Legacy lights from older versions (EnderIO painted glowstone) auto-convert to the
-  new block as chunks load, free
+- While active, every half-second it processes the area around you: removes torches
+  (configurable whitelist, returned to your inventory) and replaces ground blocks with
+  `lantern:hidden_light` — a full solid block at light 15 whose model renders the block
+  it replaced, so the lighting is invisible.
+- Placements snap to a global, world-aligned 6-block grid, with a gap-fill pass for
+  spots the grid can't serve (walls, overhangs, unplaceable ground).
+- Fuel: Glowstone (Lantern), Forge Energy (Energy Lantern), Torches (Torch Lantern,
+  places visible torches instead), or free (Creative/Dev items).
+- Lantern Bench socketed upgrades (Range / Efficiency / Capacity, tiers I–IV),
+  Darkness Wards to exclude areas, Glow Wands for manual placement.
+- `/lantern help` in game, `/lantern status|why|scan|undo` for op debugging.
+- Everything configurable: grid spacing, radius, costs, dimension blacklist, and more.
 
-Everything is configurable in `config/lantern.cfg` (grid spacing, radius, costs,
-dimension blacklist, underwater, migration, and more).
+See each project folder's README for version-specific details (config file location,
+optional-mod integrations, build instructions).
 
-## Debug commands (op)
+## Repository layout
 
-`/lantern status` · `/lantern why [x y z]` · `/lantern scan [radius]` · `/lantern undo [radius]`
+One self-contained project folder per Minecraft version + loader. They do not share
+build tooling (a 1.12.2 Forge toolchain and a modern NeoForge toolchain cannot coexist
+in one Gradle build), but they share design: same package layout, class names, registry
+names, config keys, assets, and behavior. That correspondence is what makes new ports
+mechanical — see [PORTING.md](PORTING.md) for the step-by-step guide to bringing the mod
+to another Minecraft version or loader.
+
+```
+forge-1.12.2/      Forge 1.12.2 project  (Gradle 4 / ForgeGradle 2.3 / JDK 8  — build with build.bat)
+neoforge-1.21.1/   NeoForge 1.21.1 project (Gradle 8 / ModDevGradle / JDK 21 — build with build.bat)
+PORTING.md         How to port to a new Minecraft version / loader
+```
 
 ## Building
 
-No installed toolchain needed beyond a portable JDK 8 in `tools/jdk8` (gitignored).
-Gradle 4.10.3 cannot run on modern JVMs, so always build with:
-
-```
-build.bat
-```
-
-Jar lands in `build/libs/`. `deploy.bat` copies the newest jar into the Tekxit instance
-and refuses to run while the game is open (swapping the jar under a running game
-corrupts its classloader).
-
-If `tools/jdk8` is missing, download a Temurin 8 JDK zip from
-<https://api.adoptium.net/v3/binary/latest/8/ga/windows/x64/jdk/hotspot/normal/eclipse>
-and extract so `tools/jdk8/bin/javac.exe` exists.
-
-Built against Forge `1.12.2-14.23.5.2847` (newest 1.12.2 build with FG2.3 userdev
-artifacts); runs on `14.23.5.2860` as shipped in Tekxit.
+Each project folder has its own `build.bat` that pins the right JDK and Gradle — always
+build with it, never with a globally installed Gradle. Jars land in
+`<project>/build/libs/`. Releases are built and published automatically by GitHub
+Actions when the version bumps on master.
