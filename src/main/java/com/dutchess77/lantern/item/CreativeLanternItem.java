@@ -11,13 +11,17 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * Creative-only lantern: costs nothing and places plain, visible Glowstone
- * blocks instead of hidden painted ones. No recipe.
+ * Creative-only lantern: works exactly like the normal Lantern (hidden camo
+ * lights) but costs nothing. Its lights never drop glowstone. No recipe.
  */
 public class CreativeLanternItem extends LanternItem {
 
     public CreativeLanternItem() {
-        super("creative_lantern");
+        this("creative_lantern");
+    }
+
+    protected CreativeLanternItem(String name) {
+        super(name);
     }
 
     @Override
@@ -28,6 +32,11 @@ public class CreativeLanternItem extends LanternItem {
     @Override
     public boolean consumePlacementCost(EntityPlayer player, ItemStack stack) {
         return true;
+    }
+
+    @Override
+    public boolean lightsRefundGlowstone() {
+        return false; // free lights owe nobody a refund
     }
 
     @Override

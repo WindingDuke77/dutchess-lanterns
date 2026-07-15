@@ -14,7 +14,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class CreativeGlowWandItem extends GlowWandItem {
 
     public CreativeGlowWandItem() {
-        super("creative_glow_wand");
+        this("creative_glow_wand");
+    }
+
+    protected CreativeGlowWandItem(String name) {
+        super(name);
     }
 
     @Override

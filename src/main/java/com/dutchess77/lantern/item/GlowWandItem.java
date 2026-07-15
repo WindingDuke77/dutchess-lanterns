@@ -53,6 +53,11 @@ public class GlowWandItem extends LanternItem {
         return false;
     }
 
+    /** Dev variant: drop the disguise and place bare Glowstone. */
+    protected boolean placesVisibleGlowstone() {
+        return false;
+    }
+
     @Override
     public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand,
                                       EnumFacing facing, float hitX, float hitY, float hitZ) {
@@ -103,10 +108,14 @@ public class GlowWandItem extends LanternItem {
             player.sendStatusMessage(new TextComponentTranslation("chat.lantern.no_fuel"), true);
             return EnumActionResult.SUCCESS;
         }
-        world.setBlockState(pos, ModBlocks.HIDDEN_LIGHT.getDefaultState(), 3);
-        TileEntity te = world.getTileEntity(pos);
-        if (te instanceof HiddenLightTileEntity) {
-            ((HiddenLightTileEntity) te).setMimic(state, paysWithEnergy());
+        if (placesVisibleGlowstone()) {
+            world.setBlockState(pos, Blocks.GLOWSTONE.getDefaultState(), 3);
+        } else {
+            world.setBlockState(pos, ModBlocks.HIDDEN_LIGHT.getDefaultState(), 3);
+            TileEntity te = world.getTileEntity(pos);
+            if (te instanceof HiddenLightTileEntity) {
+                ((HiddenLightTileEntity) te).setMimic(state, paysWithEnergy());
+            }
         }
         SparkleManager.add(world, pos);
         world.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,

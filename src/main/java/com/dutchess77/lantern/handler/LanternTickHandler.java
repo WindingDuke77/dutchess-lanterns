@@ -2,7 +2,7 @@ package com.dutchess77.lantern.handler;
 
 import com.dutchess77.lantern.LanternConfig;
 import com.dutchess77.lantern.compat.BaublesCompat;
-import com.dutchess77.lantern.item.CreativeLanternItem;
+import com.dutchess77.lantern.item.DevLanternItem;
 import com.dutchess77.lantern.item.LanternItem;
 import com.dutchess77.lantern.item.TorchLanternItem;
 import com.dutchess77.lantern.logic.LightPlacer;
@@ -56,7 +56,7 @@ public class LanternTickHandler {
             return;
         }
 
-        boolean visible = lantern.getItem() instanceof CreativeLanternItem;
+        boolean visible = lantern.getItem() instanceof DevLanternItem;
         TorchSweeper.sweep(world, player, center, r, vr);
         placer.processArea(world, player, lantern, center, r, vr, false, visible);
     }

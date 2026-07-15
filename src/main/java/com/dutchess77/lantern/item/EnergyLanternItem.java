@@ -63,6 +63,11 @@ public class EnergyLanternItem extends LanternItem {
     }
 
     @Override
+    public boolean lightsRefundGlowstone() {
+        return false; // FE-paid lights refund no glowstone
+    }
+
+    @Override
     public boolean consumePlacementCost(EntityPlayer player, ItemStack stack) {
         if (player.capabilities.isCreativeMode && LanternConfig.freeInCreative) {
             return true;

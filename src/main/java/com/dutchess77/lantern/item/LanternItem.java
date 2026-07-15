@@ -86,6 +86,11 @@ public class LanternItem extends Item implements baubles.api.IBauble {
         return Item.getItemFromBlock(Blocks.GLOWSTONE);
     }
 
+    /** Whether this lantern's placed lights drop/refund Glowstone (paid ones do, FE/free ones don't). */
+    public boolean lightsRefundGlowstone() {
+        return true;
+    }
+
     protected String chargeChatKey() {
         return "chat.lantern.charge";
     }

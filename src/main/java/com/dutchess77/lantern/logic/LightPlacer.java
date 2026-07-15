@@ -230,7 +230,7 @@ public class LightPlacer {
             TileEntity te = world.getTileEntity(target);
             if (te instanceof HiddenLightTileEntity) {
                 ((HiddenLightTileEntity) te).setMimic(original,
-                    lantern.getItem() instanceof EnergyLanternItem);
+                    !((LanternItem) lantern.getItem()).lightsRefundGlowstone());
             }
         }
         SparkleManager.add(world, sparkleAt);
