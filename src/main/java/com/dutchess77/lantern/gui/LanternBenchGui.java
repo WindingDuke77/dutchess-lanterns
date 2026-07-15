@@ -41,6 +41,12 @@ public class LanternBenchGui extends GuiContainer {
     /** Same layout as the container: center, then N/W/E/S sockets. */
     private static final int[][] SLOT_POSITIONS = { {80, 35}, {80, 13}, {58, 35}, {102, 35}, {80, 57} };
 
+    /** Slot-type silhouettes inside Baubles' own GUI texture (amulet..charm). */
+    private static final ResourceLocation BAUBLES_TEXTURE =
+        new ResourceLocation("baubles", "textures/gui/expanded_inventory.png");
+    private static final int[][] BAUBLE_ICON_UV =
+        { {77, 8}, {77, 26}, {77, 44}, {77, 62}, {97, 8}, {97, 26}, {97, 44} };
+
     private final LanternBenchTileEntity bench;
 
     public LanternBenchGui(InventoryPlayer playerInventory, LanternBenchTileEntity bench) {
@@ -98,6 +104,46 @@ public class LanternBenchGui extends GuiContainer {
                     guiLeft + SLOT_POSITIONS[1 + i][0], guiTop + SLOT_POSITIONS[1 + i][1]);
             }
         }
+        drawBaublesPanel();
+    }
+
+    /** Side column of the player's worn baubles, attached to the right edge. */
+    private void drawBaublesPanel() {
+        int count = ((LanternBenchContainer) inventorySlots).getBaubleCount();
+        if (count <= 0) {
+            return;
+        }
+        int x0 = guiLeft + 174;
+        int x1 = guiLeft + 205;
+        int y0 = guiTop + 8;
+        int y1 = guiTop + 19 + count * 18;
+        drawRect(x0, y0, x1, y1, 0xFFC6C6C6);
+        drawRect(x0, y0, x1 - 1, y0 + 2, 0xFFFFFFFF);     // light top
+        drawRect(x1 - 2, y0 + 1, x1, y1, 0xFF555555);     // dark right
+        drawRect(x0 + 1, y1 - 2, x1 - 1, y1, 0xFF555555); // dark bottom
+        for (int i = 0; i < count; i++) {
+            drawSlotInset(guiLeft + LanternBenchContainer.BAUBLE_X - 1,
+                guiTop + LanternBenchContainer.BAUBLE_Y - 1 + i * 18);
+        }
+        // slot-type silhouettes for empty slots, straight from Baubles' texture
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F); // drawRect leaves its fill color set
+        mc.getTextureManager().bindTexture(BAUBLES_TEXTURE);
+        int firstBauble = 1 + LanternBenchTileEntity.SOCKET_COUNT + 36;
+        for (int i = 0; i < count && i < BAUBLE_ICON_UV.length; i++) {
+            if (!inventorySlots.getSlot(firstBauble + i).getHasStack()) {
+                drawTexturedModalRect(guiLeft + LanternBenchContainer.BAUBLE_X,
+                    guiTop + LanternBenchContainer.BAUBLE_Y + i * 18,
+                    BAUBLE_ICON_UV[i][0], BAUBLE_ICON_UV[i][1], 16, 16);
+            }
+        }
+    }
+
+    private void drawSlotInset(int x, int y) {
+        drawRect(x, y, x + 17, y + 1, 0xFF373737);
+        drawRect(x, y + 1, x + 1, y + 17, 0xFF373737);
+        drawRect(x + 1, y + 17, x + 18, y + 18, 0xFFFFFFFF);
+        drawRect(x + 17, y + 1, x + 18, y + 17, 0xFFFFFFFF);
+        drawRect(x + 1, y + 1, x + 17, y + 17, 0xFF8B8B8B);
     }
 
     /** Renders a faded item as a slot hint, washed toward the slot gray. */

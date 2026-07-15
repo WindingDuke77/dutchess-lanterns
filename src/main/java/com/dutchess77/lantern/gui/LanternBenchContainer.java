@@ -17,7 +17,12 @@ public class LanternBenchContainer extends Container {
     /** N, W, E, S around the central lantern slot at (80, 35). */
     private static final int[][] SOCKET_POSITIONS = { {80, 13}, {58, 35}, {102, 35}, {80, 57} };
 
+    /** Baubles side panel: 7 slots in a column just outside the main panel. */
+    public static final int BAUBLE_X = 183;
+    public static final int BAUBLE_Y = 14;
+
     private final LanternBenchTileEntity bench;
+    private int baubleCount;
 
     public LanternBenchContainer(InventoryPlayer playerInventory, LanternBenchTileEntity bench) {
         this.bench = bench;
@@ -65,6 +70,63 @@ public class LanternBenchContainer extends Container {
         for (int col = 0; col < 9; col++) {
             addSlotToContainer(new Slot(playerInventory, col, 8 + col * 18, 142));
         }
+
+        // worn baubles alongside, so a worn lantern goes straight into the bench
+        final EntityPlayer player = playerInventory.player;
+        net.minecraftforge.items.IItemHandler baubles =
+            com.dutchess77.lantern.compat.BaublesCompat.handler(player);
+        if (baubles != null) {
+            baubleCount = Math.min(7, baubles.getSlots());
+            for (int i = 0; i < baubleCount; i++) {
+                final int index = i;
+                addSlotToContainer(new SlotItemHandler(baubles, i, BAUBLE_X, BAUBLE_Y + i * 18) {
+                    @Override
+                    public boolean isItemValid(ItemStack stack) {
+                        return com.dutchess77.lantern.compat.BaublesCompat.isValidForSlot(
+                            getItemHandler(), index, stack, player);
+                    }
+
+                    @Override
+                    public int getSlotStackLimit() {
+                        return 1;
+                    }
+
+                    /** Equip/unequip callbacks, matching Baubles' own SlotBauble. */
+                    @Override
+                    public void putStack(ItemStack stack) {
+                        ItemStack previous = getStack();
+                        if (!ItemStack.areItemStacksEqual(previous, stack)) {
+                            if (!previous.isEmpty() && previous.getItem() instanceof baubles.api.IBauble) {
+                                ((baubles.api.IBauble) previous.getItem()).onUnequipped(previous, player);
+                            }
+                            if (!stack.isEmpty() && stack.getItem() instanceof baubles.api.IBauble) {
+                                ((baubles.api.IBauble) stack.getItem()).onEquipped(stack, player);
+                            }
+                        }
+                        super.putStack(stack);
+                    }
+
+                    @Override
+                    public ItemStack onTake(EntityPlayer taker, ItemStack stack) {
+                        if (!stack.isEmpty() && stack.getItem() instanceof baubles.api.IBauble) {
+                            ((baubles.api.IBauble) stack.getItem()).onUnequipped(stack, taker);
+                        }
+                        return super.onTake(taker, stack);
+                    }
+
+                    @Override
+                    public boolean canTakeStack(EntityPlayer taker) {
+                        ItemStack stack = getStack();
+                        return stack.isEmpty() || !(stack.getItem() instanceof baubles.api.IBauble)
+                            || ((baubles.api.IBauble) stack.getItem()).canUnequip(stack, taker);
+                    }
+                });
+            }
+        }
+    }
+
+    public int getBaubleCount() {
+        return baubleCount;
     }
 
     @Override
@@ -100,13 +162,19 @@ public class LanternBenchContainer extends Container {
         ItemStack current = slot.getStack();
         moved = current.copy();
         int benchSlots = 1 + LanternBenchTileEntity.SOCKET_COUNT;
+        int playerEnd = benchSlots + 36; // bauble slots live past the player inventory
         if (index < benchSlots) {
             if (index == 0 && !bench.getWorld().isRemote) {
                 // shift-clicking the lantern out: pack sockets into it first
                 bench.packInto(current);
                 moved = current.copy();
             }
-            if (!mergeItemStack(current, benchSlots, inventorySlots.size(), true)) {
+            if (!mergeItemStack(current, benchSlots, playerEnd, true)) {
+                return ItemStack.EMPTY;
+            }
+        } else if (index >= playerEnd) {
+            // worn bauble out to the player inventory
+            if (!mergeItemStack(current, benchSlots, playerEnd, true)) {
                 return ItemStack.EMPTY;
             }
         } else if (current.getItem() instanceof LanternItem) {
@@ -124,6 +192,9 @@ public class LanternBenchContainer extends Container {
             slot.putStack(ItemStack.EMPTY);
         } else {
             slot.onSlotChanged();
+        }
+        if (current.getCount() != moved.getCount()) {
+            slot.onTake(player, current); // fires bauble unequip callbacks on shift-click out
         }
         return moved;
     }
