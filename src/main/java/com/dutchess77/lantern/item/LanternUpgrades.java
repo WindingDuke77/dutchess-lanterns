@@ -35,7 +35,8 @@ public final class LanternUpgrades {
     }
 
     public static int socketCount(ItemStack lantern) {
-        return lantern.getItem() instanceof EnergyLanternItem ? 4 : 3;
+        return lantern.getItem() instanceof EnergyLanternItem
+            || lantern.getItem() instanceof EnergyGlowWandItem ? 4 : 3;
     }
 
     public static List<Installed> list(ItemStack lantern) {
@@ -98,6 +99,13 @@ public final class LanternUpgrades {
     /** Base radius + 4 per Range tier, capped so the scan stays affordable. */
     public static int effectiveRadius(ItemStack lantern, int base) {
         return Math.min(32, base + 4 * tierSum(lantern, UpgradeType.RANGE));
+    }
+
+    public static final int MAX_REACH = 20;
+
+    /** Glow Wand targeting reach: vanilla-ish 5 blocks + 2 per Range tier, capped. */
+    public static int effectiveReach(ItemStack wand) {
+        return Math.min(MAX_REACH, 5 + 2 * tierSum(wand, UpgradeType.RANGE));
     }
 
     /** Chance a placement costs nothing: 15% per Efficiency tier, capped at 80%. */

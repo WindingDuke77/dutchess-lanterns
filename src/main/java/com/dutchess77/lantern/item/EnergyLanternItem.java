@@ -69,6 +69,9 @@ public class EnergyLanternItem extends LanternItem {
         if (player.capabilities.isCreativeMode && LanternConfig.freeInCreative) {
             return true;
         }
+        if (player.getRNG().nextFloat() < LanternUpgrades.freeChance(stack)) {
+            return true; // Efficiency upgrade proc
+        }
         int cost = LanternConfig.energyPerLight;
         int stored = getEnergy(stack);
         if (stored < cost) {
@@ -133,6 +136,11 @@ public class EnergyLanternItem extends LanternItem {
 
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable NBTTagCompound nbt) {
+        return newEnergyProvider(stack);
+    }
+
+    /** FE capability backed by the stack's Energy tag - shared with the Energy Glow Wand. */
+    public static ICapabilityProvider newEnergyProvider(ItemStack stack) {
         return new ICapabilityProvider() {
             @Override
             public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {

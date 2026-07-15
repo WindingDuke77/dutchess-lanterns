@@ -1,0 +1,17 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "C",
+    "W",
+    "R"
+  ],
+  "key": {
+    "C": { "item": "lantern:glow_capacitor" },
+    "W": { "item": "lantern:glow_wand" },
+    "R": { "item": "minecraft:redstone_block" }
+  },
+  "result": {
+    "item": "lantern:energy_glow_wand",
+    "nbt": { "Energy": 0 }
+  }
+}

@@ -1,7 +1,9 @@
 package com.dutchess77.lantern;
 
 import com.dutchess77.lantern.item.CreativeLanternItem;
+import com.dutchess77.lantern.item.EnergyGlowWandItem;
 import com.dutchess77.lantern.item.EnergyLanternItem;
+import com.dutchess77.lantern.item.GlowWandItem;
 import com.dutchess77.lantern.item.LanternItem;
 import com.dutchess77.lantern.item.TorchLanternItem;
 
@@ -21,6 +23,8 @@ public class ModItems {
     public static final EnergyLanternItem ENERGY_LANTERN = new EnergyLanternItem();
     public static final TorchLanternItem TORCH_LANTERN = new TorchLanternItem();
     public static final CreativeLanternItem CREATIVE_LANTERN = new CreativeLanternItem();
+    public static final GlowWandItem GLOW_WAND = new GlowWandItem();
+    public static final EnergyGlowWandItem ENERGY_GLOW_WAND = new EnergyGlowWandItem();
     public static final Item GLOW_CAPACITOR = new Item()
         .setRegistryName(Lantern.MODID, "glow_capacitor")
         .setTranslationKey(Lantern.MODID + ".glow_capacitor")
@@ -47,6 +51,8 @@ public class ModItems {
         event.getRegistry().register(ENERGY_LANTERN);
         event.getRegistry().register(TORCH_LANTERN);
         event.getRegistry().register(CREATIVE_LANTERN);
+        event.getRegistry().register(GLOW_WAND);
+        event.getRegistry().register(ENERGY_GLOW_WAND);
         event.getRegistry().register(GLOW_CAPACITOR);
         event.getRegistry().register(RANGE_UPGRADE);
         event.getRegistry().register(EFFICIENCY_UPGRADE);
@@ -65,6 +71,10 @@ public class ModItems {
                 new ModelResourceLocation(TORCH_LANTERN.getRegistryName(), "inventory"));
             ModelLoader.setCustomModelResourceLocation(CREATIVE_LANTERN, 0,
                 new ModelResourceLocation(CREATIVE_LANTERN.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(GLOW_WAND, 0,
+                new ModelResourceLocation(GLOW_WAND.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(ENERGY_GLOW_WAND, 0,
+                new ModelResourceLocation(ENERGY_GLOW_WAND.getRegistryName(), "inventory"));
             ModelLoader.setCustomModelResourceLocation(GLOW_CAPACITOR, 0,
                 new ModelResourceLocation(GLOW_CAPACITOR.getRegistryName(), "inventory"));
             for (Item upgrade : new Item[] { RANGE_UPGRADE, EFFICIENCY_UPGRADE, CAPACITY_UPGRADE }) {

@@ -1,0 +1,17 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "  G",
+    " D ",
+    "S  "
+  ],
+  "key": {
+    "G": { "item": "minecraft:glowstone" },
+    "D": { "item": "minecraft:diamond" },
+    "S": { "item": "minecraft:stick" }
+  },
+  "result": {
+    "item": "lantern:glow_wand",
+    "nbt": { "Charge": 0 }
+  }
+}
