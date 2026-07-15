@@ -101,6 +101,8 @@ public class HiddenLightBlock extends Block implements team.chisel.ctm.api.IFaca
                 } catch (Throwable t) {
                     // some mods' state code chokes on foreign positions - plain mimic then
                 }
+                // CTM models need their own context-carrying state to connect textures
+                mimic = com.dutchess77.lantern.compat.CTMCompat.wrapForCTM(mimic, world, pos);
                 return ((IExtendedBlockState) state).withProperty(MIMIC, mimic);
             }
         }
@@ -191,9 +193,8 @@ public class HiddenLightBlock extends Block implements team.chisel.ctm.api.IFaca
 
     @Override
     public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
-        // mimics are always opaque full cubes, but e.g. grass adds a CUTOUT_MIPPED overlay
-        return layer == BlockRenderLayer.SOLID
-            || layer == BlockRenderLayer.CUTOUT
-            || layer == BlockRenderLayer.CUTOUT_MIPPED;
+        // every layer: grass adds a CUTOUT_MIPPED overlay, CTM glow textures add
+        // TRANSLUCENT ones - the baked model filters per-mimic anyway
+        return true;
     }
 }

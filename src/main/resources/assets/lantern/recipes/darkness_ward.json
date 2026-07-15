@@ -1,0 +1,15 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "OOO",
+    "OCO",
+    "OOO"
+  ],
+  "key": {
+    "O": { "item": "minecraft:obsidian" },
+    "C": { "item": "minecraft:coal_block" }
+  },
+  "result": {
+    "item": "lantern:darkness_ward"
+  }
+}

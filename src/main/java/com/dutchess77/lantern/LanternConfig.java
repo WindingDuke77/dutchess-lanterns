@@ -74,6 +74,11 @@ public class LanternConfig {
     @Config.RangeInt(min = 0, max = 1000000)
     public static int energyPerLight = 2000;
 
+    @Config.Comment({"Radius (cube) around a Darkness Ward where Lanterns never place lights or sweep torches.",
+        "The Glow Wand ignores wards - manual placements always work."})
+    @Config.RangeInt(min = 1, max = 64)
+    public static int wardRadius = 16;
+
     @Config.Comment("Registry names of torch blocks the Lantern sweeps up")
     public static String[] torchWhitelist = {"minecraft:torch"};
 

@@ -31,7 +31,7 @@ public final class TorchSweeper {
                 continue;
             }
             IBlockState state = world.getBlockState(pos);
-            if (isTorch(state.getBlock())) {
+            if (isTorch(state.getBlock()) && !WardRegistry.isWarded(world, pos)) {
                 ItemStack drop = new ItemStack(Item.getItemFromBlock(state.getBlock()));
                 world.setBlockToAir(pos.toImmutable());
                 if (!drop.isEmpty()) {

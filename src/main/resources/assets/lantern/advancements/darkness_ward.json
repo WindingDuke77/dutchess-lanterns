@@ -1,0 +1,17 @@
+{
+  "parent": "lantern:root",
+  "display": {
+    "icon": { "item": "lantern:darkness_ward" },
+    "title": "Lights Out",
+    "description": "Craft a Darkness Ward - some places are meant to stay dark",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "has_darkness_ward": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [ { "item": "lantern:darkness_ward" } ] }
+    }
+  }
+}

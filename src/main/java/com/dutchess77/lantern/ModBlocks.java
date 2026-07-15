@@ -28,14 +28,19 @@ public class ModBlocks {
     public static final HiddenLightBlock HIDDEN_LIGHT = new HiddenLightBlock();
     public static final com.dutchess77.lantern.block.LanternBenchBlock LANTERN_BENCH =
         new com.dutchess77.lantern.block.LanternBenchBlock();
+    public static final com.dutchess77.lantern.block.DarknessWardBlock DARKNESS_WARD =
+        new com.dutchess77.lantern.block.DarknessWardBlock();
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().register(HIDDEN_LIGHT);
         event.getRegistry().register(LANTERN_BENCH);
+        event.getRegistry().register(DARKNESS_WARD);
         GameRegistry.registerTileEntity(HiddenLightTileEntity.class, Lantern.MODID + ":hidden_light");
         GameRegistry.registerTileEntity(com.dutchess77.lantern.block.LanternBenchTileEntity.class,
             Lantern.MODID + ":lantern_bench");
+        GameRegistry.registerTileEntity(com.dutchess77.lantern.block.DarknessWardTileEntity.class,
+            Lantern.MODID + ":darkness_ward");
     }
 
     @SubscribeEvent
@@ -45,6 +50,21 @@ public class ModBlocks {
             new ItemBlock(HIDDEN_LIGHT).setRegistryName(HIDDEN_LIGHT.getRegistryName()));
         event.getRegistry().register(
             new ItemBlock(LANTERN_BENCH).setRegistryName(LANTERN_BENCH.getRegistryName()));
+        event.getRegistry().register(new ItemBlock(DARKNESS_WARD) {
+            @Override
+            @net.minecraftforge.fml.relauncher.SideOnly(Side.CLIENT)
+            public void addInformation(net.minecraft.item.ItemStack stack,
+                                       @javax.annotation.Nullable net.minecraft.world.World world,
+                                       java.util.List<String> tooltip,
+                                       net.minecraft.client.util.ITooltipFlag flag) {
+                tooltip.add(net.minecraft.util.text.TextFormatting.DARK_PURPLE
+                    + net.minecraft.client.resources.I18n.format("tooltip.lantern.ward",
+                        LanternConfig.wardRadius * 2 + 1));
+                tooltip.add(net.minecraft.util.text.TextFormatting.DARK_GRAY.toString()
+                    + net.minecraft.util.text.TextFormatting.ITALIC
+                    + net.minecraft.client.resources.I18n.format("tooltip.lantern.ward2"));
+            }
+        }.setRegistryName(DARKNESS_WARD.getRegistryName()));
     }
 
     @Mod.EventBusSubscriber(value = Side.CLIENT, modid = Lantern.MODID)
@@ -56,6 +76,8 @@ public class ModBlocks {
                 new ModelResourceLocation(HIDDEN_LIGHT.getRegistryName(), "inventory"));
             ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(LANTERN_BENCH), 0,
                 new ModelResourceLocation(LANTERN_BENCH.getRegistryName(), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(DARKNESS_WARD), 0,
+                new ModelResourceLocation(DARKNESS_WARD.getRegistryName(), "inventory"));
         }
 
         @SubscribeEvent

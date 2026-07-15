@@ -7,6 +7,7 @@ item.lantern.energy_glow_wand.name=Energy Glow Wand
 tile.lantern.hidden_light.name=Hidden Light
 item.lantern.glow_capacitor.name=Glow Capacitor
 tile.lantern.lantern_bench.name=Lantern Bench
+tile.lantern.darkness_ward.name=Darkness Ward
 
 item.lantern.range_upgrade_t1.name=Range Upgrade I
 item.lantern.range_upgrade_t2.name=Range Upgrade II
@@ -53,6 +54,8 @@ tooltip.lantern.baubles=Wearable in the Baubles Charm slot
 tooltip.lantern.wand_howto1=Right-Click a block to swap it for a glowing copy
 tooltip.lantern.wand_howto2=Sneak + Right-Click a glowing block to swap it back
 tooltip.lantern.wand_fill=Right-Click the air to load Glowstone blocks
+tooltip.lantern.ward=Lanterns keep out of a %1$dx%1$dx%1$d cube around it
+tooltip.lantern.ward2=Mob farms stay dark - the Glow Wand still works inside
 
 chat.lantern.update=Dutchess Lanterns %s downloaded - installs when the game closes
 chat.lantern.on=Lantern activated
