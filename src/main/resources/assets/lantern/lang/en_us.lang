@@ -23,6 +23,10 @@ item.lantern.capacity_upgrade_t3.name=Capacity Upgrade III
 item.lantern.capacity_upgrade_t4.name=Capacity Upgrade IV
 
 gui.lantern.bench=Lantern Bench
+gui.lantern.ward=Darkness Ward
+gui.lantern.ward_size=Size
+gui.lantern.ward_offset=Offset
+gui.lantern.ward_limit=Limit: %d (socket Range upgrades)
 gui.lantern.baubles=◆ Baubles
 gui.lantern.insert=Insert a lantern
 gui.lantern.sockets=Sockets: %d/%d
@@ -54,8 +58,8 @@ tooltip.lantern.baubles=Wearable in the Baubles Charm slot
 tooltip.lantern.wand_howto1=Right-Click a block to swap it for a glowing copy
 tooltip.lantern.wand_howto2=Sneak + Right-Click a glowing block to swap it back
 tooltip.lantern.wand_fill=Right-Click the air to load Glowstone blocks
-tooltip.lantern.ward=Lanterns keep out of a %1$dx%1$dx%1$d cube around it
-tooltip.lantern.ward2=Mob farms stay dark - the Glow Wand still works inside
+tooltip.lantern.ward=Lanterns place no lights inside its area - mob farms stay dark
+tooltip.lantern.ward2=Right-Click it to size the area and socket Range upgrades
 
 chat.lantern.update=Dutchess Lanterns %s downloaded - installs when the game closes
 chat.lantern.on=Lantern activated

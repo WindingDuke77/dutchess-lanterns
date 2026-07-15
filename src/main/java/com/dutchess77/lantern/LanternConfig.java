@@ -74,8 +74,8 @@ public class LanternConfig {
     @Config.RangeInt(min = 0, max = 1000000)
     public static int energyPerLight = 2000;
 
-    @Config.Comment({"Radius (cube) around a Darkness Ward where Lanterns never place lights or sweep torches.",
-        "The Glow Wand ignores wards - manual placements always work."})
+    @Config.Comment({"Base per-axis size cap (radius) of a Darkness Ward's area; Range upgrades add +4 per tier.",
+        "New wards start at this size. The Glow Wand ignores wards - manual placements always work."})
     @Config.RangeInt(min = 1, max = 64)
     public static int wardRadius = 16;
 

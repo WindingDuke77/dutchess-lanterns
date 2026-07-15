@@ -58,8 +58,7 @@ public class ModBlocks {
                                        java.util.List<String> tooltip,
                                        net.minecraft.client.util.ITooltipFlag flag) {
                 tooltip.add(net.minecraft.util.text.TextFormatting.DARK_PURPLE
-                    + net.minecraft.client.resources.I18n.format("tooltip.lantern.ward",
-                        LanternConfig.wardRadius * 2 + 1));
+                    + net.minecraft.client.resources.I18n.format("tooltip.lantern.ward"));
                 tooltip.add(net.minecraft.util.text.TextFormatting.DARK_GRAY.toString()
                     + net.minecraft.util.text.TextFormatting.ITALIC
                     + net.minecraft.client.resources.I18n.format("tooltip.lantern.ward2"));

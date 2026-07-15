@@ -1,6 +1,7 @@
 package com.dutchess77.lantern.gui;
 
 import com.dutchess77.lantern.Lantern;
+import com.dutchess77.lantern.block.DarknessWardTileEntity;
 import com.dutchess77.lantern.block.LanternBenchTileEntity;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,22 +14,24 @@ public class LanternGuiHandler implements IGuiHandler {
 
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
-        if (id == Lantern.GUI_BENCH) {
-            TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-            if (te instanceof LanternBenchTileEntity) {
-                return new LanternBenchContainer(player.inventory, (LanternBenchTileEntity) te);
-            }
+        TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+        if (id == Lantern.GUI_BENCH && te instanceof LanternBenchTileEntity) {
+            return new LanternBenchContainer(player.inventory, (LanternBenchTileEntity) te);
+        }
+        if (id == Lantern.GUI_WARD && te instanceof DarknessWardTileEntity) {
+            return new DarknessWardContainer(player.inventory, (DarknessWardTileEntity) te);
         }
         return null;
     }
 
     @Override
     public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
-        if (id == Lantern.GUI_BENCH) {
-            TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-            if (te instanceof LanternBenchTileEntity) {
-                return new LanternBenchGui(player.inventory, (LanternBenchTileEntity) te);
-            }
+        TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+        if (id == Lantern.GUI_BENCH && te instanceof LanternBenchTileEntity) {
+            return new LanternBenchGui(player.inventory, (LanternBenchTileEntity) te);
+        }
+        if (id == Lantern.GUI_WARD && te instanceof DarknessWardTileEntity) {
+            return new DarknessWardGui(player.inventory, (DarknessWardTileEntity) te);
         }
         return null;
     }

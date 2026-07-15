@@ -36,4 +36,28 @@ public class DarknessWardBlock extends Block {
     public TileEntity createTileEntity(World world, IBlockState state) {
         return new DarknessWardTileEntity();
     }
+
+    @Override
+    public boolean onBlockActivated(World world, net.minecraft.util.math.BlockPos pos, IBlockState state,
+                                    net.minecraft.entity.player.EntityPlayer player,
+                                    net.minecraft.util.EnumHand hand, net.minecraft.util.EnumFacing facing,
+                                    float hitX, float hitY, float hitZ) {
+        if (!world.isRemote) {
+            player.openGui(Lantern.instance, Lantern.GUI_WARD, world, pos.getX(), pos.getY(), pos.getZ());
+        }
+        return true;
+    }
+
+    @Override
+    public void breakBlock(World world, net.minecraft.util.math.BlockPos pos, IBlockState state) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof DarknessWardTileEntity) {
+            net.minecraftforge.items.ItemStackHandler sockets = ((DarknessWardTileEntity) te).getSockets();
+            for (int i = 0; i < sockets.getSlots(); i++) {
+                net.minecraft.inventory.InventoryHelper.spawnItemStack(world,
+                    pos.getX(), pos.getY(), pos.getZ(), sockets.getStackInSlot(i));
+            }
+        }
+        super.breakBlock(world, pos, state);
+    }
 }
