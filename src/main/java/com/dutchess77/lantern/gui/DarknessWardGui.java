@@ -88,6 +88,14 @@ public class DarknessWardGui extends GuiContainer {
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         mc.getTextureManager().bindTexture(TEXTURE);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+        // wired-charger-style ghost hint: Range upgrades go in the sockets
+        net.minecraft.item.ItemStack ghost = new net.minecraft.item.ItemStack(
+            com.dutchess77.lantern.ModItems.RANGE_UPGRADE);
+        for (int i = 0; i < DarknessWardTileEntity.SOCKET_COUNT; i++) {
+            if (ward.getSockets().getStackInSlot(i).isEmpty()) {
+                LanternBenchGui.drawGhost(ghost, guiLeft + 150, guiTop + 9 + i * 18);
+            }
+        }
     }
 
     /** Flat 12x12 +/- button drawn in the vanilla slot palette. */

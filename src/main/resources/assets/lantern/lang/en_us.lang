@@ -59,7 +59,7 @@ tooltip.lantern.baubles=Wearable in the Baubles Charm slot
 tooltip.lantern.wand_howto1=Right-Click a block to swap it for a glowing copy
 tooltip.lantern.wand_howto2=Sneak + Right-Click a glowing block to swap it back
 tooltip.lantern.wand_fill=Right-Click the air to load Glowstone blocks
-tooltip.lantern.wand_fill_creative=Free - swap as much as you like
+tooltip.lantern.wand_fill_creative= Free - swap as much as you like
 tooltip.lantern.ward=Lanterns place no lights inside its area - mob farms stay dark
 tooltip.lantern.ward2=Right-Click it to size the area and socket Range upgrades
 
@@ -72,7 +72,7 @@ chat.lantern.torches=Torches: %d/%d
 chat.lantern.creative=Creative Lantern: unlimited, places visible Glowstone
 chat.lantern.reclaimed=Reclaimed %d hidden lights
 chat.lantern.no_fuel=Lantern is out of fuel
-chat.lantern.wand_already=Already glowing - Sneak + Right-Click to swap it back
+chat.lantern.wand_already=Already Glowing - Sneak + Right-Click to swap it back
 chat.lantern.wand_invalid=That block cannot be swapped for a glowing copy
 chat.lantern.wand_reverted=Swapped back to the original block
 chat.lantern.no_enderio=The Lantern requires EnderIO's painted glowstone and cannot work in this pack

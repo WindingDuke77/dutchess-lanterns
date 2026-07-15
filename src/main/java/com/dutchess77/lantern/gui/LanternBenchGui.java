@@ -5,7 +5,12 @@ import com.dutchess77.lantern.block.LanternBenchTileEntity;
 import com.dutchess77.lantern.item.LanternItem;
 import com.dutchess77.lantern.item.LanternUpgrades;
 
+import com.dutchess77.lantern.ModItems;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -22,6 +27,19 @@ public class LanternBenchGui extends GuiContainer {
         new ResourceLocation(Lantern.MODID, "textures/gui/lantern_bench.png");
 
     private static final boolean BAUBLES = Loader.isModLoaded("baubles");
+
+    /** Wired-charger-style ghost hints: what belongs in each empty slot. */
+    private static final ItemStack[] CENTER_GHOSTS = {
+        new ItemStack(ModItems.LANTERN), new ItemStack(ModItems.ENERGY_LANTERN),
+        new ItemStack(ModItems.TORCH_LANTERN), new ItemStack(ModItems.GLOW_WAND),
+        new ItemStack(ModItems.ENERGY_GLOW_WAND)
+    };
+    private static final ItemStack[] SOCKET_GHOSTS = {
+        new ItemStack(ModItems.RANGE_UPGRADE), new ItemStack(ModItems.EFFICIENCY_UPGRADE),
+        new ItemStack(ModItems.CAPACITY_UPGRADE)
+    };
+    /** Same layout as the container: center, then N/W/E/S sockets. */
+    private static final int[][] SLOT_POSITIONS = { {80, 35}, {80, 13}, {58, 35}, {102, 35}, {80, 57} };
 
     private final LanternBenchTileEntity bench;
 
@@ -69,5 +87,27 @@ public class LanternBenchGui extends GuiContainer {
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         mc.getTextureManager().bindTexture(TEXTURE);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+        int cycle = (int) (Minecraft.getSystemTime() / 1200L);
+        if (bench.getInventory().getStackInSlot(LanternBenchTileEntity.SLOT_LANTERN).isEmpty()) {
+            drawGhost(CENTER_GHOSTS[cycle % CENTER_GHOSTS.length],
+                guiLeft + SLOT_POSITIONS[0][0], guiTop + SLOT_POSITIONS[0][1]);
+        }
+        for (int i = 0; i < LanternBenchTileEntity.SOCKET_COUNT; i++) {
+            if (bench.getInventory().getStackInSlot(LanternBenchTileEntity.SOCKET_FIRST + i).isEmpty()) {
+                drawGhost(SOCKET_GHOSTS[(cycle + i) % SOCKET_GHOSTS.length],
+                    guiLeft + SLOT_POSITIONS[1 + i][0], guiTop + SLOT_POSITIONS[1 + i][1]);
+            }
+        }
+    }
+
+    /** Renders a faded item as a slot hint, washed toward the slot gray. */
+    static void drawGhost(ItemStack stack, int x, int y) {
+        RenderHelper.enableGUIStandardItemLighting();
+        Minecraft.getMinecraft().getRenderItem().renderItemIntoGUI(stack, x, y);
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableDepth();
+        drawRect(x, y, x + 16, y + 16, 0xB08B8B8B);
+        GlStateManager.enableDepth();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }
