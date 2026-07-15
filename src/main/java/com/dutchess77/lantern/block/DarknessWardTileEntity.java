@@ -126,14 +126,9 @@ public class DarknessWardTileEntity extends TileEntity {
     }
 
     public boolean contains(BlockPos target) {
-        return contains(target, 0);
-    }
-
-    /** Inside the box grown by margin on every axis (placement keep-out zone). */
-    public boolean contains(BlockPos target, int margin) {
-        return Math.abs(target.getX() - (pos.getX() + offsetX)) <= radiusX + margin
-            && Math.abs(target.getY() - (pos.getY() + offsetY)) <= radiusY + margin
-            && Math.abs(target.getZ() - (pos.getZ() + offsetZ)) <= radiusZ + margin;
+        return Math.abs(target.getX() - (pos.getX() + offsetX)) <= radiusX
+            && Math.abs(target.getY() - (pos.getY() + offsetY)) <= radiusY
+            && Math.abs(target.getZ() - (pos.getZ() + offsetZ)) <= radiusZ;
     }
 
     private void sync() {

@@ -34,24 +34,12 @@ public final class WardRegistry {
 
     /** True when pos lies within any loaded ward's box. */
     public static boolean isWarded(World world, BlockPos pos) {
-        return isWarded(world, pos, 0);
-    }
-
-    /**
-     * Placement keep-out: the box plus the configured buffer, so lights set
-     * just outside a ward cannot bleed light back across its border.
-     */
-    public static boolean isPlacementBlocked(World world, BlockPos pos) {
-        return isWarded(world, pos, com.dutchess77.lantern.LanternConfig.wardBuffer);
-    }
-
-    private static boolean isWarded(World world, BlockPos pos, int margin) {
         Map<BlockPos, DarknessWardTileEntity> wards = WARDS.get(world.provider.getDimension());
         if (wards == null || wards.isEmpty()) {
             return false;
         }
         for (DarknessWardTileEntity ward : wards.values()) {
-            if (!ward.isInvalid() && ward.contains(pos, margin)) {
+            if (!ward.isInvalid() && ward.contains(pos)) {
                 return true;
             }
         }

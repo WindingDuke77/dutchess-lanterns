@@ -75,11 +75,6 @@ public class LanternConfig {
     @Config.RangeInt(min = 1, max = 64)
     public static int wardRadius = 16;
 
-    @Config.Comment({"Extra no-placement margin (blocks) around a ward's box, so lights placed just",
-        "outside cannot bleed light back in. 8 keeps the border at or below the spawn threshold."})
-    @Config.RangeInt(min = 0, max = 32)
-    public static int wardBuffer = 8;
-
     @Config.Comment("Registry names of torch blocks the Lantern sweeps up")
     public static String[] torchWhitelist = {"minecraft:torch"};
 
