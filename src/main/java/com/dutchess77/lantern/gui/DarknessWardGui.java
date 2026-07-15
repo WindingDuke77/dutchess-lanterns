@@ -1,5 +1,9 @@
 package com.dutchess77.lantern.gui;
 
+import java.io.IOException;
+
+import org.lwjgl.input.Mouse;
+
 import com.dutchess77.lantern.Lantern;
 import com.dutchess77.lantern.block.DarknessWardTileEntity;
 import com.dutchess77.lantern.client.WardAreaRenderer;
@@ -13,15 +17,15 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Size / offset editor for the Darkness Ward, styled after EnderIO's range
- * widget: values with stacked +/- spinners, and a toggle that highlights the
- * warded area in the world. Values render straight from the client tile
- * entity, which the server keeps synced after every adjustment.
+ * widget: values with stacked +/- spinners (scroll over a value works too),
+ * and a toggle that highlights the warded area in the world. Values render
+ * straight from the client tile entity, which the server keeps synced after
+ * every adjustment.
  */
 @SideOnly(Side.CLIENT)
 public class DarknessWardGui extends GuiContainer {
@@ -29,8 +33,12 @@ public class DarknessWardGui extends GuiContainer {
     private static final ResourceLocation TEXTURE =
         new ResourceLocation(Lantern.MODID, "textures/gui/darkness_ward.png");
 
-    private static final int[] ROW_Y = { 24, 38, 52 };
+    private static final int[] ROW_Y = { 28, 46, 64 };
     private static final String[] AXES = { "X", "Y", "Z" };
+    private static final int SIZE_VALUE_X = 40;
+    private static final int OFFSET_VALUE_X = 100;
+    private static final int SIZE_SPINNER_X = 54;
+    private static final int OFFSET_SPINNER_X = 114;
     private static final int ID_SHOW_AREA = 100;
 
     private final DarknessWardTileEntity ward;
@@ -48,17 +56,17 @@ public class DarknessWardGui extends GuiContainer {
         super.initGui();
         buttonList.clear();
         for (int axis = 0; axis < 3; axis++) {
-            int y = ROW_Y[axis];
-            addSpinner(axis, guiLeft + 52, guiTop + y);           // radius
-            addSpinner(axis + 3, guiLeft + 108, guiTop + y);      // offset
+            int y = guiTop + ROW_Y[axis];
+            addSpinner(axis, guiLeft + SIZE_SPINNER_X, y);
+            addSpinner(axis + 3, guiLeft + OFFSET_SPINNER_X, y);
         }
-        showAreaButton = addButton(new ShowAreaButton(ID_SHOW_AREA, guiLeft + 126, guiTop + 36));
+        showAreaButton = addButton(new ShowAreaButton(ID_SHOW_AREA, guiLeft + 134, guiTop + 46));
     }
 
-    /** EnderIO-style spinner: tiny + on top of tiny -, one field. */
+    /** EnderIO-style spinner: small + above small -, one field. */
     private void addSpinner(int field, int x, int y) {
-        addButton(new MiniButton(field * 2 + 1, x, y, "+"));
-        addButton(new MiniButton(field * 2, x, y + 7, "-"));
+        addButton(new MiniButton(field * 2 + 1, x, y, true));
+        addButton(new MiniButton(field * 2, x, y + 9, false));
     }
 
     @Override
@@ -67,9 +75,34 @@ public class DarknessWardGui extends GuiContainer {
             WardAreaRenderer.toggle(ward.getWorld(), ward.getPos());
             return;
         }
-        int field = button.id / 2;
-        int delta = (button.id % 2 == 0 ? -1 : 1) * (GuiScreen.isShiftKeyDown() ? 5 : 1);
+        adjust(button.id / 2, button.id % 2 == 0 ? -1 : 1);
+    }
+
+    private void adjust(int field, int direction) {
+        int delta = direction * (GuiScreen.isShiftKeyDown() ? 5 : 1);
         Lantern.NETWORK.sendToServer(new WardAdjustMessage(ward.getPos(), field, delta));
+    }
+
+    /** Scrolling over a value or its spinner nudges it (shift = x5). */
+    @Override
+    public void handleMouseInput() throws IOException {
+        super.handleMouseInput();
+        int wheel = Mouse.getEventDWheel();
+        if (wheel == 0) {
+            return;
+        }
+        int mx = Mouse.getEventX() * width / mc.displayWidth - guiLeft;
+        int my = height - Mouse.getEventY() * height / mc.displayHeight - 1 - guiTop;
+        for (int axis = 0; axis < 3; axis++) {
+            if (my < ROW_Y[axis] - 1 || my >= ROW_Y[axis] + 18) {
+                continue;
+            }
+            if (mx >= 24 && mx < 68) {
+                adjust(axis, wheel > 0 ? 1 : -1);
+            } else if (mx >= 84 && mx < 128) {
+                adjust(axis + 3, wheel > 0 ? 1 : -1);
+            }
+        }
     }
 
     @Override
@@ -81,22 +114,27 @@ public class DarknessWardGui extends GuiContainer {
             drawHoveringText(I18n.format(WardAreaRenderer.isShown(ward.getWorld(), ward.getPos())
                 ? "gui.lantern.ward_hide" : "gui.lantern.ward_show"), mouseX, mouseY);
         }
+        for (GuiButton button : buttonList) {
+            // size spinners: explain what caps them
+            if (button.id < 6 && button.isMouseOver()) {
+                drawHoveringText(I18n.format("gui.lantern.ward_limit", ward.cap() * 2 + 1), mouseX, mouseY);
+                break;
+            }
+        }
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        fontRenderer.drawString(I18n.format("gui.lantern.ward"), 8, 6, 0x404040);
-        drawCentered(I18n.format("gui.lantern.ward_size"), 40, 14, 0x404040);
-        drawCentered(I18n.format("gui.lantern.ward_offset"), 96, 14, 0x404040);
+        GuiStyle.drawTitle(fontRenderer, I18n.format("gui.lantern.ward"));
+        drawCentered(I18n.format("gui.lantern.ward_size"), SIZE_VALUE_X + 10, 18, 0x404040);
+        drawCentered(I18n.format("gui.lantern.ward_offset"), OFFSET_VALUE_X + 10, 18, 0x404040);
         for (int axis = 0; axis < 3; axis++) {
-            int y = ROW_Y[axis] + 3;
+            int y = ROW_Y[axis] + 5;
             fontRenderer.drawString(AXES[axis], 10, y, 0x404040);
-            drawCentered(Integer.toString(ward.getRadius(axis) * 2 + 1), 36, y, 0x404040);
+            drawCentered(Integer.toString(ward.getRadius(axis) * 2 + 1), SIZE_VALUE_X, y, 0x404040);
             int offset = ward.getOffset(axis);
-            drawCentered((offset > 0 ? "+" : "") + offset, 92, y, 0x404040);
+            drawCentered((offset > 0 ? "+" : "") + offset, OFFSET_VALUE_X, y, 0x404040);
         }
-        fontRenderer.drawString(TextFormatting.DARK_PURPLE
-            + I18n.format("gui.lantern.ward_limit", ward.cap() * 2 + 1), 8, 70, 0x404040);
     }
 
     private void drawCentered(String text, int centerX, int y, int color) {
@@ -116,11 +154,14 @@ public class DarknessWardGui extends GuiContainer {
         }
     }
 
-    /** Flat 12x7 spinner half drawn in the vanilla slot palette. */
+    /** Raised 12x8 spinner half with a +/- glyph. */
     private static class MiniButton extends GuiButton {
 
-        MiniButton(int id, int x, int y, String label) {
-            super(id, x, y, 12, 7, label);
+        private final boolean plus;
+
+        MiniButton(int id, int x, int y, boolean plus) {
+            super(id, x, y, 12, 8, "");
+            this.plus = plus;
         }
 
         @Override
@@ -129,14 +170,10 @@ public class DarknessWardGui extends GuiContainer {
                 return;
             }
             hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
-            drawRect(x, y, x + width, y + height, 0xFF373737);
-            drawRect(x + 1, y + 1, x + width, y + height, 0xFFFFFFFF);
-            drawRect(x + 1, y + 1, x + width - 1, y + height - 1, hovered ? 0xFFA8B0B8 : 0xFF8B8B8B);
-            int cx = x + width / 2;
-            int cy = y + height / 2;
-            drawRect(cx - 2, cy, cx + 2, cy + 1, 0xFF303030);           // '-'
-            if ("+".equals(displayString)) {
-                drawRect(cx - 1, cy - 2, cx, cy + 3, 0xFF303030);       // vertical stroke of '+'
+            GuiStyle.paintRaised(x, y, width, height, hovered);
+            drawRect(x + 4, y + 4, x + 9, y + 5, 0xFF1E1E1E);      // '-'
+            if (plus) {
+                drawRect(x + 6, y + 2, x + 7, y + 7, 0xFF1E1E1E);  // vertical stroke of '+'
             }
         }
     }
@@ -154,17 +191,15 @@ public class DarknessWardGui extends GuiContainer {
                 return;
             }
             hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
-            drawRect(x, y, x + width, y + height, 0xFF373737);
-            drawRect(x + 1, y + 1, x + width, y + height, 0xFFFFFFFF);
-            drawRect(x + 1, y + 1, x + width - 1, y + height - 1, hovered ? 0xFFA8B0B8 : 0xFF8B8B8B);
+            GuiStyle.paintRaised(x, y, width, height, hovered);
             boolean shown = WardAreaRenderer.isShown(ward.getWorld(), ward.getPos());
             int box = shown ? 0xFF9040D8 : 0xFF55585C;
-            drawRect(x + 4, y + 4, x + 12, y + 5, box);                  // box outline
+            drawRect(x + 4, y + 4, x + 12, y + 5, box);
             drawRect(x + 4, y + 11, x + 12, y + 12, box);
             drawRect(x + 4, y + 5, x + 5, y + 11, box);
             drawRect(x + 11, y + 5, x + 12, y + 11, box);
             if (!shown) {
-                for (int i = 0; i < 10; i++) {                           // red slash = hidden
+                for (int i = 0; i < 10; i++) {
                     drawRect(x + 3 + i, y + 12 - i, x + 4 + i, y + 13 - i, 0xFFC03030);
                 }
             }

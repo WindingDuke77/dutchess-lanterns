@@ -65,7 +65,7 @@ public class LanternBenchGui extends GuiContainer {
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        fontRenderer.drawString(I18n.format("gui.lantern.bench"), 8, 6, 0x404040);
+        GuiStyle.drawTitle(fontRenderer, I18n.format("gui.lantern.bench"));
         if (BAUBLES) {
             String baubles = TextFormatting.DARK_PURPLE + I18n.format("gui.lantern.baubles");
             fontRenderer.drawString(baubles, xSize - 8 - fontRenderer.getStringWidth(baubles), 72, 0x404040);
