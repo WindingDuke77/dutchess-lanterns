@@ -14,9 +14,10 @@ final class GuiStyle {
     private GuiStyle() {
     }
 
-    /** Bold purple title with shadow - same treatment on every block GUI. */
+    /** Purple title with shadow - same treatment on every block GUI. Not bold:
+     *  bold width collides with the bench's north socket. */
     static void drawTitle(FontRenderer fr, String title) {
-        fr.drawString(TextFormatting.BOLD + title, 8, 6, 0x7B4FC8, true);
+        fr.drawString(title, 8, 6, 0x7B4FC8, true);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
     }
 

@@ -49,10 +49,13 @@ public class LanternBenchGui extends GuiContainer {
 
     private final LanternBenchTileEntity bench;
 
+    /** Width of the main panel; xSize also covers the Baubles side panel so JEI keeps clear. */
+    private static final int PANEL_WIDTH = 176;
+
     public LanternBenchGui(InventoryPlayer playerInventory, LanternBenchTileEntity bench) {
         super(new LanternBenchContainer(playerInventory, bench));
         this.bench = bench;
-        this.xSize = 176;
+        this.xSize = ((LanternBenchContainer) inventorySlots).getBaubleCount() > 0 ? 206 : PANEL_WIDTH;
         this.ySize = 166;
     }
 
@@ -68,7 +71,7 @@ public class LanternBenchGui extends GuiContainer {
         GuiStyle.drawTitle(fontRenderer, I18n.format("gui.lantern.bench"));
         if (BAUBLES) {
             String baubles = TextFormatting.DARK_PURPLE + I18n.format("gui.lantern.baubles");
-            fontRenderer.drawString(baubles, xSize - 8 - fontRenderer.getStringWidth(baubles), 72, 0x404040);
+            fontRenderer.drawString(baubles, PANEL_WIDTH - 8 - fontRenderer.getStringWidth(baubles), 72, 0x404040);
         }
         ItemStack lantern = bench.getInventory().getStackInSlot(LanternBenchTileEntity.SLOT_LANTERN);
         String status = lantern.getItem() instanceof LanternItem
@@ -92,7 +95,7 @@ public class LanternBenchGui extends GuiContainer {
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         mc.getTextureManager().bindTexture(TEXTURE);
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+        drawTexturedModalRect(guiLeft, guiTop, 0, 0, PANEL_WIDTH, ySize);
         int cycle = (int) (Minecraft.getSystemTime() / 1200L);
         if (bench.getInventory().getStackInSlot(LanternBenchTileEntity.SLOT_LANTERN).isEmpty()) {
             drawGhost(CENTER_GHOSTS[cycle % CENTER_GHOSTS.length],
