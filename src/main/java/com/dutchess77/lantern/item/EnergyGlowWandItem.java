@@ -31,10 +31,7 @@ public class EnergyGlowWandItem extends GlowWandItem {
 
     @Override
     protected void fill(EntityPlayer player, ItemStack stack) {
-        // no inventory fuel; just report the charge level
-        player.sendStatusMessage(new TextComponentTranslation("chat.lantern.energy",
-            EnergyLanternItem.formatFE(EnergyLanternItem.getEnergy(stack)),
-            EnergyLanternItem.formatFE(EnergyLanternItem.energyCapacityOf(stack))), true);
+        // no inventory fuel and no status chatter - the durability bar shows the charge
     }
 
     @Override

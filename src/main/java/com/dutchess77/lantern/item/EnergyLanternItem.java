@@ -37,9 +37,7 @@ public class EnergyLanternItem extends LanternItem {
 
     @Override
     protected void fill(EntityPlayer player, ItemStack stack) {
-        // no inventory fuel; just report the charge level
-        player.sendStatusMessage(new TextComponentTranslation("chat.lantern.energy",
-            formatFE(getEnergy(stack)), formatFE(energyCapacityOf(stack))), true);
+        // no inventory fuel and no status chatter - the durability bar shows the charge
     }
 
     /** 1234 -> "1.23k", 200000 -> "200k", 1500000 -> "1.5M"; at most two decimals. */

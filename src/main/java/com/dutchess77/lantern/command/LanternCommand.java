@@ -89,7 +89,7 @@ public class LanternCommand extends CommandBase {
         say(sender, "=== Dutchess Lanterns " + Lantern.VERSION + " ===");
         say(sender, "Sneak + Right-Click (air): toggle on/off (glints while on)");
         say(sender, "Right-Click: load fuel from inventory + carried containers");
-        say(sender, "Sneak + Right-Click ON A BLOCK: reclaim hidden lights nearby (refunds glowstone)");
+        say(sender, "Glow Wand: Right-Click swaps a block for a glowing copy, Sneak swaps it back");
         say(sender, "Works held, on the hotbar, or worn in the Baubles charm slot");
         say(sender, "While on: sweeps torches back to you, buries invisible painted glowstone");
         say(sender, "on a global 6-block grid, gap-fills walls/awkward spots, lights underwater");

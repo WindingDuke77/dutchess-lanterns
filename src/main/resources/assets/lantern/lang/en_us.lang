@@ -4,6 +4,7 @@ item.lantern.torch_lantern.name=Torch Lantern
 item.lantern.creative_lantern.name=Creative Lantern
 item.lantern.glow_wand.name=Glow Wand
 item.lantern.energy_glow_wand.name=Energy Glow Wand
+item.lantern.creative_glow_wand.name=Creative Glow Wand
 tile.lantern.hidden_light.name=Hidden Light
 item.lantern.glow_capacitor.name=Glow Capacitor
 tile.lantern.lantern_bench.name=Lantern Bench
@@ -58,6 +59,7 @@ tooltip.lantern.baubles=Wearable in the Baubles Charm slot
 tooltip.lantern.wand_howto1=Right-Click a block to swap it for a glowing copy
 tooltip.lantern.wand_howto2=Sneak + Right-Click a glowing block to swap it back
 tooltip.lantern.wand_fill=Right-Click the air to load Glowstone blocks
+tooltip.lantern.wand_fill_creative=Free - swap as much as you like
 tooltip.lantern.ward=Lanterns place no lights inside its area - mob farms stay dark
 tooltip.lantern.ward2=Right-Click it to size the area and socket Range upgrades
 

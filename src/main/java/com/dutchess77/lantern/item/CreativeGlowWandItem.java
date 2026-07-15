@@ -1,33 +1,35 @@
 package com.dutchess77.lantern.item;
 
-import com.dutchess77.lantern.LanternConfig;
-
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * Creative-only lantern: costs nothing and places plain, visible Glowstone
- * blocks instead of hidden painted ones. No recipe.
+ * Creative-only Glow Wand: swaps cost nothing. Its lights are marked FE-paid
+ * so reverting or mining them refunds/drops no glowstone. No recipe.
  */
-public class CreativeLanternItem extends LanternItem {
+public class CreativeGlowWandItem extends GlowWandItem {
 
-    public CreativeLanternItem() {
-        super("creative_lantern");
-    }
-
-    @Override
-    protected void fill(EntityPlayer player, ItemStack stack) {
-        player.sendStatusMessage(new TextComponentTranslation("chat.lantern.creative"), true);
+    public CreativeGlowWandItem() {
+        super("creative_glow_wand");
     }
 
     @Override
     public boolean consumePlacementCost(EntityPlayer player, ItemStack stack) {
         return true;
+    }
+
+    @Override
+    protected boolean paysWithEnergy() {
+        return true; // free lights owe nobody a refund
+    }
+
+    @Override
+    protected void fill(EntityPlayer player, ItemStack stack) {
+        // nothing to fill
     }
 
     @Override
@@ -49,6 +51,6 @@ public class CreativeLanternItem extends LanternItem {
 
     @Override
     protected String howtoFillKey() {
-        return "tooltip.lantern.howto2_creative";
+        return "tooltip.lantern.wand_fill_creative";
     }
 }

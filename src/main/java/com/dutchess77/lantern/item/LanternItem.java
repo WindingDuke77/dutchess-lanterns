@@ -6,11 +6,7 @@ import javax.annotation.Nullable;
 
 import com.dutchess77.lantern.Lantern;
 import com.dutchess77.lantern.LanternConfig;
-import com.dutchess77.lantern.ModBlocks;
-import com.dutchess77.lantern.block.HiddenLightTileEntity;
-import com.dutchess77.lantern.compat.EnderIOPaintHelper;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -22,10 +18,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -49,67 +43,6 @@ public class LanternItem extends Item implements baubles.api.IBauble {
         setTranslationKey(Lantern.MODID + "." + name);
         setCreativeTab(CreativeTabs.TOOLS);
         setMaxStackSize(1);
-    }
-
-    /** Sneak + use ON A BLOCK reclaims placed hidden lights around it (air-click still toggles). */
-    @Override
-    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand,
-                                      EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (!player.isSneaking()) {
-            return EnumActionResult.PASS;
-        }
-        if (!world.isRemote) {
-            int reclaimed = reclaimLights(player, player.getHeldItem(hand), world, pos);
-            player.sendStatusMessage(new TextComponentTranslation("chat.lantern.reclaimed", reclaimed), true);
-            if (reclaimed > 0) {
-                world.playSound(null, player.posX, player.posY, player.posZ,
-                    SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 0.5F, 0.8F);
-            }
-        }
-        return EnumActionResult.SUCCESS;
-    }
-
-    private int reclaimLights(EntityPlayer player, ItemStack lantern, World world, BlockPos center) {
-        int rh = LanternConfig.horizontalRadius;
-        int rv = LanternConfig.verticalRange;
-        int count = 0;
-        int refundable = 0; // FE-paid lights refund no glowstone
-        for (BlockPos pos : BlockPos.getAllInBoxMutable(center.add(-rh, -rv, -rh), center.add(rh, rv, rh))) {
-            if (!world.isBlockLoaded(pos)) {
-                continue;
-            }
-            net.minecraft.block.Block block = world.getBlockState(pos).getBlock();
-            if (block == ModBlocks.HIDDEN_LIGHT) {
-                net.minecraft.tileentity.TileEntity te = world.getTileEntity(pos);
-                IBlockState mimic = null;
-                boolean fromEnergy = false;
-                if (te instanceof HiddenLightTileEntity) {
-                    mimic = ((HiddenLightTileEntity) te).getMimic();
-                    fromEnergy = ((HiddenLightTileEntity) te).isFromEnergy();
-                }
-                world.setBlockState(pos.toImmutable(),
-                    mimic != null ? mimic : Blocks.STONE.getDefaultState(), 3);
-                count++;
-                if (!fromEnergy) {
-                    refundable++;
-                }
-            } else if (EnderIOPaintHelper.isPaintedGlowstone(block)) {
-                // legacy lights placed by pre-1.11 versions
-                IBlockState paint = EnderIOPaintHelper.getPaint(world.getTileEntity(pos));
-                world.setBlockState(pos.toImmutable(),
-                    paint != null ? paint : Blocks.STONE.getDefaultState(), 3);
-                count++;
-                refundable++;
-            }
-        }
-        if (refundable > 0 && refundOnReclaim()) {
-            refundReclaimed(player, lantern, refundable);
-        }
-        return count;
-    }
-
-    protected boolean refundOnReclaim() {
-        return true;
     }
 
     /** Refund reclaimed lights as Glowstone: buffer first when this lantern burns Glowstone, else items. */

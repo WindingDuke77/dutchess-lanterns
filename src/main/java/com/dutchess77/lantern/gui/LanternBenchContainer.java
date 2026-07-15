@@ -73,6 +73,23 @@ public class LanternBenchContainer extends Container {
             && player.getDistanceSq(bench.getPos().add(0.5, 0.5, 0.5)) <= 64.0D;
     }
 
+    /**
+     * Pack/unpack rewrites slots and the taken stack's NBT outside the click
+     * the client predicted, leaving stale sockets and cursor until the GUI is
+     * reopened - push a full resync after every click instead.
+     */
+    @Override
+    public ItemStack slotClick(int slotId, int dragType, net.minecraft.inventory.ClickType clickType,
+                               EntityPlayer player) {
+        ItemStack result = super.slotClick(slotId, dragType, clickType, player);
+        if (player instanceof net.minecraft.entity.player.EntityPlayerMP) {
+            net.minecraft.entity.player.EntityPlayerMP mp = (net.minecraft.entity.player.EntityPlayerMP) player;
+            mp.sendAllContents(this, getInventory());
+            mp.updateHeldItem();
+        }
+        return result;
+    }
+
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int index) {
         ItemStack moved = ItemStack.EMPTY;
