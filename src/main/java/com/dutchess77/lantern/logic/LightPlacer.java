@@ -198,7 +198,7 @@ public class LightPlacer {
                 spot = above;
             }
         }
-        if (spot == null || WardRegistry.isWarded(world, spot)) {
+        if (spot == null || WardRegistry.isPlacementBlocked(world, spot)) {
             return PlaceResult.SKIP;
         }
         if (!ignoreLight
@@ -216,8 +216,8 @@ public class LightPlacer {
     /** Consumes fuel and swaps the target block for a light; sparkles at the spot it serves. */
     private PlaceResult placeAt(World world, EntityPlayer player, ItemStack lantern,
                                 BlockPos target, BlockPos sparkleAt, boolean visible) {
-        if (WardRegistry.isWarded(world, target)) {
-            return PlaceResult.SKIP; // Darkness Ward: this area stays dark
+        if (WardRegistry.isPlacementBlocked(world, target)) {
+            return PlaceResult.SKIP; // Darkness Ward: this area (plus buffer) stays dark
         }
         if (!((LanternItem) lantern.getItem()).consumePlacementCost(player, lantern)) {
             return PlaceResult.NO_FUEL;

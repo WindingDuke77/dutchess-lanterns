@@ -28,9 +28,12 @@ public class DarknessWardTileEntity extends TileEntity {
     public static final int FIELD_RADIUS_X = 0;
     public static final int FIELD_OFFSET_X = 3;
 
-    private int radiusX = LanternConfig.wardRadius;
-    private int radiusY = LanternConfig.wardRadius;
-    private int radiusZ = LanternConfig.wardRadius;
+    /** Freshly placed wards start small (9x9x9) - grow them in the GUI. */
+    private static final int DEFAULT_RADIUS = 4;
+
+    private int radiusX = DEFAULT_RADIUS;
+    private int radiusY = DEFAULT_RADIUS;
+    private int radiusZ = DEFAULT_RADIUS;
     private int offsetX;
     private int offsetY;
     private int offsetZ;
@@ -123,9 +126,14 @@ public class DarknessWardTileEntity extends TileEntity {
     }
 
     public boolean contains(BlockPos target) {
-        return Math.abs(target.getX() - (pos.getX() + offsetX)) <= radiusX
-            && Math.abs(target.getY() - (pos.getY() + offsetY)) <= radiusY
-            && Math.abs(target.getZ() - (pos.getZ() + offsetZ)) <= radiusZ;
+        return contains(target, 0);
+    }
+
+    /** Inside the box grown by margin on every axis (placement keep-out zone). */
+    public boolean contains(BlockPos target, int margin) {
+        return Math.abs(target.getX() - (pos.getX() + offsetX)) <= radiusX + margin
+            && Math.abs(target.getY() - (pos.getY() + offsetY)) <= radiusY + margin
+            && Math.abs(target.getZ() - (pos.getZ() + offsetZ)) <= radiusZ + margin;
     }
 
     private void sync() {
