@@ -9,10 +9,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Config(modid = Lantern.MODID)
 public class LanternConfig {
 
-    @Config.Comment({"Self-update from GitHub releases: a newer jar downloads in the background",
-        "and installs itself when the game closes. Disable to manage the jar yourself."})
-    public static boolean autoUpdate = true;
-
     @Config.Comment("Distance in blocks between points of the global lighting grid (world-aligned)")
     @Config.RangeInt(min = 2, max = 16)
     public static int gridSpacing = 6;

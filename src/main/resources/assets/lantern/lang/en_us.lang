@@ -65,7 +65,6 @@ tooltip.lantern.wand_fill_creative= Free - swap as much as you like
 tooltip.lantern.ward=Lanterns place no lights inside its area - mob farms stay dark
 tooltip.lantern.ward2=Right-Click it to size the area and socket Range upgrades
 
-chat.lantern.update=Dutchess Lanterns %s downloaded - installs when the game closes
 chat.lantern.on=Lantern activated
 chat.lantern.off=Lantern deactivated
 chat.lantern.charge=Glowstone: %d/%d
